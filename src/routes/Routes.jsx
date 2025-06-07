@@ -12,6 +12,8 @@ import UserForm from '../pages/Users/UserForm.jsx';
 import OdooInvoices from '../pages/OdooInvoices/OdooInvoices.jsx';
 import Centers from '../pages/Centers/Centers.jsx';
 import CenterForm from '../pages/Centers/CenterForm.jsx';
+import BusinessLines from '../pages/BusinessLines/BusinessLines.jsx';
+import BusinessLineForm from '../pages/BusinessLines/BusinessLineForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -34,7 +36,8 @@ const Routes = () => {
                         <Route path="/users/:id" element={<UserForm/>} />
                         <Route path="/centers" element={<Centers/>} />
                         <Route path="/centers/:id" element={<CenterForm/>} />
-                        {/* Rutas para teacher y super_admin */}
+                        <Route path="/business-lines" element={<BusinessLines/>} />
+                        <Route path="/business-lines/:id" element={<BusinessLineForm/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>

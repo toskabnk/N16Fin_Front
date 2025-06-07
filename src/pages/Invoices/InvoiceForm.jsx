@@ -246,7 +246,7 @@ function InvoiceForm() {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    await InvoiceService.delete(token, invoiceID);
+                    await InvoiceService.delete(token, id);
                     successSnackbar("Factura eliminada correctamente", "success");
                     navigate("/invoices");
                 } catch (error) {
@@ -345,9 +345,7 @@ function InvoiceForm() {
                                     fullWidth: true,
                                     required: true,
                                     margin: 'normal',
-                                    onBlur: (e) => {
-                                        formik.handleBlur;
-                                    },
+                                    onBlur: formik.handleBlur,
                                     error: formik.touched['invoice_date'] && Boolean(formik.errors['invoice_date']),
                                     helperText: formik.touched['invoice_date'] && formik.errors['invoice_date'],
                                 },
