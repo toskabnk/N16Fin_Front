@@ -1,12 +1,44 @@
-# React + Vite
+# N16Fin Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Requirements
+In a local enviroment:
+- NodeJS 20 and NPM
 
-Currently, two official plugins are available:
+## Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Clone the repository into a folder with the project name:
+```shell
+git clone https://github.com/toskabnk/N16Fin_Front.git
+```
+Or in the current folder with:
+```shell
+git clone https://github.com/toskabnk/N16Fin_Front.git .
+```
 
-## Expanding the ESLint configuration
+Install the dependencies with
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```shell
+npm install
+```
+Rename `.env.example` to `.env` and edit the `VITE_API_URL` with the direction of the API.
+
+## Run
+
+Once the dependencies are installed, you can run the project in a local environment by executing the following command in a terminal:
+
+```shell
+npm run dev
+```
+
+Also, you can expose the proyect to your network by executing the following command in a terminal:
+```shell
+npm run host
+```
+
+## Compilation
+
+To compile the project, run the following command in a terminal
+```shell
+npm run build
+```
+A 'dist' folder will be created in the root of the project. Inside, you will find the assets used, as well as the compiled HTML and JS code of the project.
