@@ -10,11 +10,14 @@ import Autocomplete from "../../components/Forms/Autocomplete";
 import SupplierService from "../../services/supplierService";
 import ShareTypesService from "../../services/shareTypesService";
 import FormikTextField from "../../components/FormikTextField";
-import { Button, Card, CardHeader, Checkbox, Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Radio, RadioGroup, Select } from "@mui/material";
+import { Button, Card, CardHeader, Checkbox, Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
 import CenterService from "../../services/centerService";
 import TransferList from "../../components/TransferListComponent";
 import InvoiceService from "../../services/invoiceService";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
 function InvoiceForm() {
     //Hooks
@@ -54,6 +57,8 @@ function InvoiceForm() {
     //Estados para la transfer list    
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
+    //Estado para la fecha
+    const [invoiceDate, setInvoiceDate] = useState(null);
 
     const months = [
         { value: '01', label: 'Enero' },
@@ -77,7 +82,7 @@ function InvoiceForm() {
             odoo_invoice_id: null,
             reference: "",
             month: "",
-            invoice_date: null,
+            invoice_date: "",
             amount_total: 0,
             supplier_id: null,
             manual: false,
@@ -89,10 +94,10 @@ function InvoiceForm() {
         validationSchema: Yup.object({
             reference: Yup.string().required("Campo requerido"),
             month: Yup.string().required("Campo requerido"),
-            invoice_date: Yup.date(),
+            invoice_date: Yup.date().required("Campo requerido"),
             amount_total: Yup.number().required("Campo requerido"),
             supplier_id: Yup.string().required("Campo requerido"),
-            business_line_id: Yup.string(),
+            business_line_id: Yup.string().nullable(),
             share_type_id: Yup.string().required("Campo requerido"),
             type: Yup.string().oneOf(["in", "out"], "Tipo de factura inválido").required("Campo requerido"),
         }),
@@ -135,7 +140,7 @@ function InvoiceForm() {
         getCenters();
     }, [token]);
 
-        //Si hay un company en la ubicación, se carga el nombre en el formulario
+    //Si hay uns factura en la ubicación, se carga los datos en el formulario
     useEffect(() => {
         if (id && location.state?.objectID) {
             setIsEdit(true);
@@ -166,9 +171,8 @@ function InvoiceForm() {
                 formik.setFieldValue("month", month);
             }
             if(invoice_date){
-                // Formatear la fecha al formato YYYY-MM-DD
-                const formattedDate = new Date(invoice_date).toISOString().split('T')[0];
-                formik.setFieldValue("invoice_date", formattedDate);
+                setInvoiceDate(dayjs(invoice_date));
+                formik.setFieldValue('invoice_date', dayjs(invoice_date));
             }
         }
     }, [id, invoiceID]);
@@ -230,6 +234,32 @@ function InvoiceForm() {
         }
     }
 
+    const handleDelete = async () => {  
+        setLoadingDelete(true);
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción no se puede deshacer.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await InvoiceService.delete(token, invoiceID);
+                    successSnackbar("Factura eliminada correctamente", "success");
+                    navigate("/invoices");
+                } catch (error) {
+                    errorSnackbar(error.message, "Error al eliminar la factura");
+                } finally {
+                    setLoadingDelete(false);
+                }
+            } else {
+                setLoadingDelete(false);
+            }
+        })
+    };
+
     //#endregion
 
     return (
@@ -239,27 +269,31 @@ function InvoiceForm() {
             isEdit={isEdit}
             url='/invoices'
             loading={loading}
+            loadingDelete={loadingDelete}
+            handleDelete={handleDelete}
             onSubmit={formik.handleSubmit}>
                     <Grid size={12}>
                         <Autocomplete
                             loading={loadingSuppliers}
                             id="supplier_id"
-                            label="Proveedor"
+                            label="Proveedor*"
                             options={suppliers}
                             value={supplierValue}
                             setValue={setSupplierValue}
                             selected={selectedSupplier}
                             setSelected={setSelectedSupplier}
+                            required={true}
                             formik={formik}/>
                         <Autocomplete
                             loading={loadingShareTypes}
                             id="share_type_id"
-                            label="Reparto"
+                            label="Reparto*"
                             options={shareTypes}
                             value={shareTypeValue}
                             setValue={setShareTypeValue}
                             selected={selectedShareType}
                             setSelected={setSelectedShareType}
+                            required={true}
                             formik={formik}/>
                         <FormikTextField
                             id="reference"
@@ -272,12 +306,12 @@ function InvoiceForm() {
                             fullWidth
                             error={formik.touched.month && Boolean(formik.errors.month)}
                             margin="normal">
-                            <InputLabel id="demo-simple-select-helper-label">Mes</InputLabel>
+                            <InputLabel id="demo-simple-select-helper-label">Mes*</InputLabel>
                             <Select
                                 labelId="demo-simple-select-helper-label"
                                 id="month"
                                 name="month"
-                                label="Mes"
+                                label="Mes*"
                                 value={formik.values.month}
                                 onChange={(event) => {
                                     if(event.target.value){
@@ -293,7 +327,6 @@ function InvoiceForm() {
                                 }}
                                 onBlur={formik.handleBlur}
                                 fullWidth
-                                required
                                 error={formik.touched.month && Boolean(formik.errors.month)}
                             >
                                 {months.map((month) => (
@@ -304,14 +337,34 @@ function InvoiceForm() {
                             </Select>
                             <FormHelperText>{formik.touched.month && formik.errors.month}</FormHelperText>
                         </FormControl>
-                        <FormikTextField
+                        <DatePicker
+                            slotProps={{
+                                textField: {
+                                    id: 'invoice_date',
+                                    label: 'Fecha',
+                                    fullWidth: true,
+                                    required: true,
+                                    margin: 'normal',
+                                    onBlur: (e) => {
+                                        formik.handleBlur;
+                                    },
+                                    error: formik.touched['invoice_date'] && Boolean(formik.errors['invoice_date']),
+                                    helperText: formik.touched['invoice_date'] && formik.errors['invoice_date'],
+                                },
+                            }}
+                            views={['year', 'month', 'day']}
                             id="invoice_date"
-                            type="date"
-                            label="Fecha"
-                            formik={formik}
-                            required={true}
-                            fullWidth={true}
-                            />
+                            margin="normal"
+                            value={invoiceDate}
+                            onChange={(newValue) => {
+                                console.log(newValue);
+                                setInvoiceDate(newValue);
+                                formik.setFieldValue('invoice_date', newValue);
+                                if (newValue) {
+                                    formik.setFieldError('invoice_date', '');
+                                }
+                            }}
+                        />
                         <FormikTextField
                             id="amount_total"
                             type="number"
@@ -339,7 +392,9 @@ function InvoiceForm() {
                     container
                     spacing={2}
                     sx={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <TransferList left={left} right={right} setLeft={setLeft} setRight={setRight}/>
+                        {loadingCenters ? 
+                            <Skeleton variant="rectangular" width={410} height={230} /> : 
+                            <TransferList left={left} right={right} setLeft={setLeft} setRight={setRight}/>}
                 </Grid>
             </FormGrid>
     );
