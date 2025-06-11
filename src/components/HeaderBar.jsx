@@ -33,6 +33,7 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
   //Obtener token de usuario logueado
   const token = useSelector((state) => state.user.token)
   const name = useSelector((state) => state.user.name)
+  const year = useSelector((state) => state.data.year);
 
   //Dispatch para ejecutar acciones y navigate para redireccionar
   const dispatch = useDispatch();
@@ -129,6 +130,9 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
             : null}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           N16
+        </Typography>
+        <Typography variant="h6" sx={{px: 2}}>
+          {year ? `Año: ${year}` : 'Cargando año...'}
         </Typography>
         {//Si esta autenticado muestra el menu de usuario
           isAuthenticated ?

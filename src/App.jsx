@@ -1,16 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyledFlexFull, StyledFlexFullRow } from './styles/StyledContainers'
 import SidebarComponent from './components/Sidebar';
 import Routes from './routes/Routes';
 import HeaderBar from './components/HeaderBar';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import YearService from './services/YearService';
+import { setYear } from './redux/dataSlice';
 
 function App() {
   //Variables
   const [collapsed, setCollapsed] = useState(false);
+  const dispatch = useDispatch();
+
 
   //Obtener datos del store para saber si el usuario esta autenticado
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated)
+
+  useEffect(() => {
+    // Si el usuario no esta autenticado, colapsa la barra lateral
+    if (isAuthenticated) {
+      getCurrentYear();
+    }
+  }, [isAuthenticated]);
+
+  // Funcion para obtener el año actual
+  const getCurrentYear = async () => {
+    try {
+      const currentYear = await YearService.getCurrentYear();
+      dispatch(setYear(currentYear.data.year));
+    } catch (error) {
+      console.error('Error fetching current year:', error);
+    }
+  };
 
   return (
     <StyledFlexFull height='100%'>
