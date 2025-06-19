@@ -77,11 +77,7 @@ validationSchema: Yup.object().shape({
   //Redireccionar a la pagina correspondiente segun el rol del usuario
   useEffect(() => {
     if (isAuthenticated) {
-      if (role === "admin") {
-        navigate("/dashboard");
-      } else {
-        navigate("/myCalendar");
-      }
+      navigate("/dashboard");
     }
   }, [isAuthenticated]);
 

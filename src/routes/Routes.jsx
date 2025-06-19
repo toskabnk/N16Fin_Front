@@ -14,6 +14,7 @@ import Centers from '../pages/Centers/Centers.jsx';
 import CenterForm from '../pages/Centers/CenterForm.jsx';
 import BusinessLines from '../pages/BusinessLines/BusinessLines.jsx';
 import BusinessLineForm from '../pages/BusinessLines/BusinessLineForm.jsx';
+import ObjectivesAndResults from '../pages/Objetives/ObjectivesAndResults.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -38,6 +39,7 @@ const Routes = () => {
                         <Route path="/centers/:id" element={<CenterForm/>} />
                         <Route path="/business-lines" element={<BusinessLines/>} />
                         <Route path="/business-lines/:id" element={<BusinessLineForm/>} />
+                        <Route path="/objetives" element={<ObjectivesAndResults/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>
