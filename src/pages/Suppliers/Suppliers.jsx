@@ -1,10 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import ListDataGrid from "../../components/ListDataGrid";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
-import { useGridApiRef } from "@mui/x-data-grid";
+import { GridActionsCellItem, useGridApiRef } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
 import SupplierService from "../../services/supplierService";
 import { useSelector } from "react-redux";
+import RestoreIcon from '@mui/icons-material/Restore';
+import EditIcon from '@mui/icons-material/Edit';
+import Swal from "sweetalert2";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 
 function Suppliers() {
@@ -18,7 +22,26 @@ function Suppliers() {
     const [columns, setColumns] = useState([
         { field: 'name', headerName: 'Nombre', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'type', headerName: 'Tipo', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'center', headerName: 'Centro', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'centers', headerName: 'Centro', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'actions', headerName: 'Acciones', type: 'actions', flex: 1, resizable: true, overflow: 'hidden',
+            getActions: (params) => [
+                    <GridActionsCellItem
+                        icon={<RestoreIcon />}
+                        label= 'Actualizar Facturas'
+                        onClick ={updateInvoices(params.id)}
+                    />,
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label= 'Editar'
+                        onClick ={editSupplier(params)}
+                    />,
+                    <GridActionsCellItem
+                        icon={<VisibilityIcon />}
+                        label= 'Ver facturas'
+                        onClick ={viewInvoices(params.id)}
+                    />,
+            ],
+        },
     ]);
 
     //Loading state
@@ -48,6 +71,60 @@ function Suppliers() {
         }
     };
 
+    const updateInvoices = React.useCallback(
+        (id) => async () => {
+            Swal.fire({
+                title: "Estas seguro?",
+                text: "Esta accion actualizara las facturas de este proveedor con los centros actuales.",
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: "Si, salvo las editadas manualmente",
+                denyButtonText: `Si, todas`,
+                icon: "warning",
+                }).then((result) => {
+                
+                //Informacion a enviar al backend
+                let data = {
+                    supplier_id: id,
+                    manual: false
+                };
+                if (result.isConfirmed) {
+                    SupplierService.updateCentersOnInvoices(token, data)
+                    .then(() => {
+                        successSnackbar("Centros actualizados correctamente en las facturas", "success");
+                    })
+                    .catch((error) => {
+                        errorSnackbar(error.message, "Error al actualizar los centros");
+                    });
+                } else if (result.isDenied) {
+                    let data = {
+                        supplier_id: id,
+                        manual: true
+                    };
+                    SupplierService.updateCentersOnInvoices(token, data)
+                    .then(() => {
+                        successSnackbar("Centros actualizados correctamente en las facturas", "success");
+                    })
+                    .catch((error) => {
+                        errorSnackbar(error.message, "Error al actualizar los centros");
+                    });
+                }
+            });
+        }
+    , []);
+
+    const editSupplier = React.useCallback(
+        (params) => () => {
+            navigate(`/suppliers/${params.id}`, {state: { objectID: params.row }});
+        }
+    , []);
+
+    const viewInvoices = React.useCallback(
+        (id) => () => {
+            navigate(`/invoices?supplierID=${id}`,);
+        }
+    , []);
+
   return (
     <ListDataGrid
     rows={rows}
@@ -58,6 +135,7 @@ function Suppliers() {
     buttonName="Nuevo Proveedor"
     loading={loading}
     noClick={true}
+
 />
   );
 }

@@ -6,7 +6,12 @@ import './index.css'
 import App from './App.jsx'
 import { LicenseInfo } from '@mui/x-license';
 
-LicenseInfo.setLicenseKey(import.meta.env.VITE_MUI_LICENSE);
+const licenseKey = import.meta.env.VITE_MUI_LICENSE;
+if (licenseKey) {
+  LicenseInfo.setLicenseKey(licenseKey);
+} else {
+  console.warn('MUI license key not found. Premium features may not work correctly.');
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

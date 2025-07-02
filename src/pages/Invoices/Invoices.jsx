@@ -10,7 +10,7 @@ import { GridActionsCellItem, useGridApiRef } from "@mui/x-data-grid";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreIcon from '@mui/icons-material/Restore';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 function Invoices() {
@@ -19,6 +19,12 @@ function Invoices() {
     const navigate = useNavigate();
     //Token
     const token = useSelector((state) => state.user.token);
+    //State
+    let [searchParams] = useSearchParams();
+    //Si hay un parametro de proveedor, lo guardamos en el estado
+    const [supplierID, setSupplierID] = useState(null);
+    const [filter, setFilter] = useState(null);
+    const [filterModel, setFilterModel] = useState({ items: [] });
     //Row data for the table
     const [rows, setRows] = useState([]);
     //Columns for the table
@@ -59,6 +65,7 @@ function Invoices() {
         },
         { field: 'manual', headerName: 'Manual', type:'boolean', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'centers', headerName: 'Centros', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'supplier_id', headerName: 'ID Proveedor', flex: 1, resizable: true, overflow: 'hidden', hide: true,},
         { field: 'actions', headerName: 'Acciones', type: 'actions', flex: 1, resizable: true, overflow: 'hidden',
             getActions: (params) => [
                     <GridActionsCellItem
@@ -91,6 +98,22 @@ function Invoices() {
             getInvoices();
         }
     }, [token]);
+
+    useEffect(() => {
+        let supplierID = searchParams.get('supplierID')
+        if (supplierID) {
+            setFilterModel({
+            items: [{
+                field: 'supplier_id',
+                operator: 'contains',
+                value: supplierID,
+            }],
+            });
+        } else {
+            setFilterModel({ items: [] });
+        }
+        console.log("Filter changed:", supplierID);
+    }, [searchParams])
 
     //Obtiene las facturas de la BD
     const getInvoices = async () => {
@@ -227,6 +250,16 @@ function Invoices() {
         handleRowUpdate={handleRowUpdate}
         handleRowUpdateError={handleRowUpdateError}
         apiRef={apiRef}
+        filter={true}
+        filterModel={filterModel}
+        setFilterModel={setFilterModel}
+        initialState={{
+            columns: {
+                columnVisibilityModel: {
+                    supplier_id: false,
+                },
+            },
+        }}
     />
     );
 }

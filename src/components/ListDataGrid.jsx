@@ -3,7 +3,7 @@ import { Box, Stack } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 
-const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true , filterComponent = [], sort = [], editable = false, handleRowUpdate, handleRowUpdateError, apiRef, buttonFunction = null }) => {
+const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true , filterComponent = [], sort = [], editable = false, handleRowUpdate, handleRowUpdateError, apiRef=null, buttonFunction = null, filter=false, filterModel, setFilterModel, initialState=null }) => {
     //Hooks
     const navigate = useNavigate();
 
@@ -77,7 +77,7 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                                 p={2}
                                 >
                                 <DataGrid
-                                    {...editable && { apiRef:apiRef }}
+                                    apiRef={apiRef}
                                     rows={rows}
                                     columns={columns}
                                     initialState={{
@@ -102,6 +102,12 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                                         processRowUpdate: handleRowUpdate,
                                         onProcessRowUpdateError: handleRowUpdateError,
                                     }}
+                                    {...filter && {
+                                        filterModel: filterModel,
+                                        onFilterModelChange: (model) => setFilterModel(model),
+                                    }}
+                                    {...apiRef && { apiRef: apiRef }}
+                                    {...initialState && { initialState: initialState }}
                                 />
                             </Box>
                         </Grid>

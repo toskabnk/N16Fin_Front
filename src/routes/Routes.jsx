@@ -14,7 +14,8 @@ import Centers from '../pages/Centers/Centers.jsx';
 import CenterForm from '../pages/Centers/CenterForm.jsx';
 import BusinessLines from '../pages/BusinessLines/BusinessLines.jsx';
 import BusinessLineForm from '../pages/BusinessLines/BusinessLineForm.jsx';
-import ObjectivesAndResults from '../pages/Objetives/ObjectivesAndResults.jsx';
+import ObjectivesAndResults from '../pages/Objectives/ObjectivesAndResults.jsx';
+import SupplierForm from '../pages/Suppliers/SupplierForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -33,13 +34,14 @@ const Routes = () => {
                         <Route path="/OdooInvoices" element={<OdooInvoices/>} />
                         <Route path="/invoices/:id" element={<InvoiceForm/>} />
                         <Route path="/suppliers" element={<Suppliers/>} />
+                        <Route path="/suppliers/:id" element={<SupplierForm/>} />
                         <Route path="/users" element={<Users/>} />
                         <Route path="/users/:id" element={<UserForm/>} />
                         <Route path="/centers" element={<Centers/>} />
                         <Route path="/centers/:id" element={<CenterForm/>} />
                         <Route path="/business-lines" element={<BusinessLines/>} />
                         <Route path="/business-lines/:id" element={<BusinessLineForm/>} />
-                        <Route path="/objetives" element={<ObjectivesAndResults/>} />
+                        <Route path="/objectives" element={<ObjectivesAndResults/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>

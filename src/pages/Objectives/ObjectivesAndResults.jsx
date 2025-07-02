@@ -1,7 +1,6 @@
 import { Autocomplete, Button, CircularProgress, Paper, TextField, Typography } from "@mui/material";
-import { Box, flex, Grid, Stack } from "@mui/system";
-import { DataGridPremium, useGridApiRef } from "@mui/x-data-grid-premium";
-import { useEffect, useRef, useState } from "react";
+import { Box, Grid, Stack } from "@mui/system";import { DataGridPremium, useGridApiRef } from "@mui/x-data-grid-premium";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
@@ -439,7 +438,7 @@ function ObjectivesAndResults() {
                 p={2}>
                 <>
                     <Typography variant="body1" >
-                        <Link to={'/objetives'} color="blue" underline="hover" style={{ textDecoration: "none" }}>
+                        <Link to={'/objetives'} style={{ textDecoration: "none" }}>
                             Objetivos y Resultados
                         </Link>
                     </Typography>
