@@ -46,15 +46,23 @@ class InvoiceService extends AbstractApiService {
      * @param {*} access_token Token de acceso
      * @returns 
      */
-        async resetOdooInvoice(access_token, id) {
-            try {
-                const response = await n16FinApi.post(`${this.getUrl()}/resetInvoice/${id}`, {}, { bearerToken: access_token });
-                return response.data;
-            } catch (error) {
-                console.error("Error during resetOdooInvoice:", error);
-                throw error;
-            }
+    async resetOdooInvoice(access_token, id) {
+        try {
+            const response = await n16FinApi.post(`${this.getUrl()}/resetInvoice/${id}`, {}, { bearerToken: access_token });
+            return response.data;
+        } catch (error) {
+            console.error("Error during resetOdooInvoice:", error);
+            throw error;
         }
+    }
+
+    getTotalMonth(access_token, body) {
+        return n16FinApi.get(`${this.getUrl()}/getTotalMonth`, {params: body, bearerToken: access_token});
+    }
+
+    getInvoicesToAdd(access_token, body) {
+        return n16FinApi.get(`${this.getUrl()}/getNumberToAdd`, {params: body, bearerToken: access_token});
+    }
 }
 
 export default new InvoiceService();
