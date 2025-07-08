@@ -2,6 +2,7 @@ import { Button, Grid, Paper, Typography } from "@mui/material"
 import { Box, Stack } from "@mui/system"
 import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
+import HeaderPage from "./PagesComponents/HeaderPage";
 
 const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true , filterComponent = [], sort = [], editable = false, handleRowUpdate, handleRowUpdateError, apiRef=null, buttonFunction = null, filter=false, filterModel, setFilterModel, initialState=null }) => {
     //Hooks
@@ -26,23 +27,7 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
 
 
     return (
-        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Box
-                display="flex"
-                alignItems="left"
-                p={2}>
-                <>
-                    <Typography variant="body1" >
-                        <Link to={url} color="blue" underline="hover" style={{ textDecoration: "none" }}>
-                            {name} /
-                        </Link>
-                    </Typography>
-                    {subname ?
-                        (<Typography variant="body1" >
-                            &nbsp;{subname}
-                        </Typography>) : null}
-                </>
-            </Box>
+        <HeaderPage name={name} subname={subname} url={url}>
             <Box
                 gap={4}
                 p={2}>
@@ -114,7 +99,7 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                     </Grid>
                 </Paper>
             </Box>
-        </Box>
+        </HeaderPage>
     )
 }
 

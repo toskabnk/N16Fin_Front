@@ -16,6 +16,7 @@ import BusinessLines from '../pages/BusinessLines/BusinessLines.jsx';
 import BusinessLineForm from '../pages/BusinessLines/BusinessLineForm.jsx';
 import ObjectivesAndResults from '../pages/Objectives/ObjectivesAndResults.jsx';
 import SupplierForm from '../pages/Suppliers/SupplierForm.jsx';
+import Profile from '../pages/Profile/Profile.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -42,6 +43,8 @@ const Routes = () => {
                         <Route path="/business-lines" element={<BusinessLines/>} />
                         <Route path="/business-lines/:id" element={<BusinessLineForm/>} />
                         <Route path="/objectives" element={<ObjectivesAndResults/>} />
+                        <Route path="/" element={<Home/>} />
+                        <Route path="/profile" element={<Profile/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>

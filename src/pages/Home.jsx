@@ -5,6 +5,7 @@ import InvoiceService from "../services/invoiceService";
 import { useEffect, useState } from "react";
 import { Box, Grid } from "@mui/system";
 import KpiComponent from "../components/KpiComponent";
+import HeaderPage from "../components/PagesComponents/HeaderPage";
 
 
 function Home() {
@@ -49,16 +50,18 @@ function Home() {
     }
 
     return (
-        <Box sx={{flexGrow: 1}}>
-            <Grid container spacing={2} sx={{padding: 2}}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <KpiComponent display="Total del mes" data={total} loading={loadingTotal} unit='€'/>
+        <HeaderPage name="Dashboard" url="/dashboard" subname="Kpis">
+            <Box sx={{flexGrow: 1}}>
+                <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <KpiComponent display="Total del mes" data={total} loading={loadingTotal} unit='€'/>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <KpiComponent display="Facturas por añadir" data={numFacturas} loading={loadingNumFacturas} />
+                    </Grid>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <KpiComponent display="Facturas por añadir" data={numFacturas} loading={loadingNumFacturas} />
-                </Grid>
-            </Grid>
-        </Box>
+            </Box>
+        </HeaderPage>
     )
 }
 

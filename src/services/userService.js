@@ -23,5 +23,15 @@ export class UserService extends AbstractApiService {
             throw error;
         }
     }
+
+    async getUserProfile(access_token) {
+        try {
+            const response = await n16FinApi.get("/users/me", { bearerToken: access_token });
+            return response.data;
+        } catch (error) {
+            console.error("Error during getUserProfile:", error);
+            throw error;
+        }
+    }
 }
 export default new UserService();
