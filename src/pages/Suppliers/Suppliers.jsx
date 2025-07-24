@@ -2,13 +2,14 @@ import { useNavigate } from "react-router-dom";
 import ListDataGrid from "../../components/ListDataGrid";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import { GridActionsCellItem, useGridApiRef } from "@mui/x-data-grid";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import SupplierService from "../../services/supplierService";
 import { useSelector } from "react-redux";
 import RestoreIcon from '@mui/icons-material/Restore';
 import EditIcon from '@mui/icons-material/Edit';
 import Swal from "sweetalert2";
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CenterService from "../../services/centerService";
 
 
 function Suppliers() {
@@ -18,11 +19,25 @@ function Suppliers() {
     const token = useSelector((state) => state.user.token);
     //Row data for the table
     const [rows, setRows] = useState([]);
+    //Centers states
+    const [centers, setCenters] = useState([]);
 
-    const [columns, setColumns] = useState([
+    const columns = useMemo(() =>[
         { field: 'name', headerName: 'Nombre', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'type', headerName: 'Tipo', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'centers', headerName: 'Centro', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'centers', headerName: 'Centros', type:'string', flex: 1, resizable: true, overflow: 'hidden',
+            valueGetter: (value) => {
+                    const centerIds = value;
+                    if (!Array.isArray(centerIds)) return '';
+
+                    return centerIds
+                    .map(id => {
+                        const center = centers.find(c => c.id === id);
+                        return center?.acronym || id;
+                    })
+                    .join(', ');
+                },
+         },
         { field: 'actions', headerName: 'Acciones', type: 'actions', flex: 1, resizable: true, overflow: 'hidden',
             getActions: (params) => [
                     <GridActionsCellItem
@@ -42,7 +57,7 @@ function Suppliers() {
                     />,
             ],
         },
-    ]);
+    ], [centers]);
 
     //Loading state
     const [loading, setLoading] = useState(true);
@@ -52,6 +67,7 @@ function Suppliers() {
     //Al cargar la pagina carga las companias
     useEffect(() => {
         if(token){
+            getCenters();
             getSuppliers();
         }
     }, [token]);
@@ -70,6 +86,19 @@ function Suppliers() {
             errorSnackbar(error.message);
         }
     };
+
+        //Obtiene los centros de la BD
+        const getCenters = async () => {
+            try {
+                const response = await CenterService.getAll(token);
+    
+                setCenters(response.data);
+                console.log("Centers loaded:", response.data);
+            } catch (error) {
+                console.error(error);
+                errorSnackbar(error.message);
+            }
+        };
 
     const updateInvoices = React.useCallback(
         (id) => async () => {

@@ -1,7 +1,6 @@
 import ListDataGrid from "../../components/ListDataGrid";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
-import React, { Fragment, useEffect, useState } from "react";
-import { Button } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
 import InvoiceService from "../../services/invoiceService";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -12,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import CenterService from "../../services/centerService";
 
 function Invoices() {
     //Hooks
@@ -27,8 +27,10 @@ function Invoices() {
     const [filterModel, setFilterModel] = useState({ items: [] });
     //Row data for the table
     const [rows, setRows] = useState([]);
+    //Centers states
+    const [centers, setCenters] = useState([]);
     //Columns for the table
-    const [columns, setColumns] = useState([
+    const columns = useMemo(() =>[
         { field: 'odoo_invoice_id', headerName: 'ID', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'reference', headerName: 'Referencia', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'month', headerName: 'Mes', type:'singleSelect', flex: 1, editable: true, resizable: true, overflow: 'hidden',
@@ -64,7 +66,19 @@ function Invoices() {
             },
         },
         { field: 'manual', headerName: 'Manual', type:'boolean', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'centers', headerName: 'Centros', flex: 1, resizable: true, overflow: 'hidden' },
+        { field: 'centers', headerName: 'Centros', flex: 1, resizable: true, overflow: 'hidden',
+                valueGetter: (value) => {
+                    const centerIds = value;
+                    if (!Array.isArray(centerIds)) return '';
+
+                    return centerIds
+                    .map(id => {
+                        const center = centers.find(c => c.id === id);
+                        return center?.acronym || id;
+                    })
+                    .join(', ');
+                },
+        },
         { field: 'supplier_id', headerName: 'ID Proveedor', flex: 1, resizable: true, overflow: 'hidden', hide: true,},
         { field: 'actions', headerName: 'Acciones', type: 'actions', flex: 1, resizable: true, overflow: 'hidden',
             getActions: (params) => [
@@ -86,7 +100,7 @@ function Invoices() {
 
             ],
         },
-    ]);
+    ], [centers]);
     //Loading state
     const [loading, setLoading] = useState(true);
     //API ref
@@ -95,6 +109,7 @@ function Invoices() {
     //Al cargar la pagina carga las companias
     useEffect(() => {
         if(token){
+            getCenters();
             getInvoices();
         }
     }, [token]);
@@ -126,6 +141,19 @@ function Invoices() {
         } catch (error) {
             console.error(error);
             setLoading(false);
+            errorSnackbar(error.message);
+        }
+    };
+
+    //Obtiene los centros de la BD
+    const getCenters = async () => {
+        try {
+            const response = await CenterService.getAll(token);
+
+            setCenters(response.data);
+            console.log("Centers loaded:", response.data);
+        } catch (error) {
+            console.error(error);
             errorSnackbar(error.message);
         }
     };
