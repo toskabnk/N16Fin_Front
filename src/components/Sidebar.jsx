@@ -117,7 +117,9 @@ function SidebarComponent({ openSidebar, setOpenSidebar }) {
                 <CustomMenuItem active={location.pathname === '/objectives'} component={<Link to="/objectives" />} icon={<DescriptionIcon/>}> Objetivos y Resultados </CustomMenuItem>              </SubMenu>
               <SubMenu label="Facturación" icon={<InsertDriveFileIcon />}>
                 <CustomMenuItem active={location.pathname === '/invoices'} component={<Link to="/invoices" />} icon={<DescriptionIcon/>}> Facturas N16Fin </CustomMenuItem>
-                <CustomMenuItem active={location.pathname === '/odooInvoices'} component={<Link to="/odooInvoices" />} icon={<ReceiptIcon />}> Facturas Odoo </CustomMenuItem>
+                {
+                //<CustomMenuItem active={location.pathname === '/odooInvoices'} component={<Link to="/odooInvoices" />} icon={<ReceiptIcon />}> Facturas Odoo </CustomMenuItem>
+                }
                 <CustomMenuItem active={location.pathname === '/suppliers'} component={<Link to="/suppliers" />} icon={<WarehouseIcon />}> Proveedores </CustomMenuItem>
               </SubMenu>
               <SubMenu label="Sistema" icon={<SettingsIcon />}>

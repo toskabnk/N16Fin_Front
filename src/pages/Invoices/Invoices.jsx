@@ -287,6 +287,9 @@ function Invoices() {
                     supplier_id: false,
                 },
             },
+            pagination: {
+                    paginationModel: { page: 0, pageSize: 10 },
+            },
         }}
     />
     );

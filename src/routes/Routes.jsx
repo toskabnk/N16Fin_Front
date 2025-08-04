@@ -32,7 +32,7 @@ const Routes = () => {
                     {/* Rutas protegidas */}
                         <Route path="/dashboard" element={<Home/>} />
                         <Route path="/invoices" element={<Invoices/>} />
-                        <Route path="/OdooInvoices" element={<OdooInvoices/>} />
+                        {/* <Route path="/OdooInvoices" element={<OdooInvoices/>} /> */}
                         <Route path="/invoices/:id" element={<InvoiceForm/>} />
                         <Route path="/suppliers" element={<Suppliers/>} />
                         <Route path="/suppliers/:id" element={<SupplierForm/>} />

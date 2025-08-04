@@ -62,7 +62,6 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                                 p={2}
                                 >
                                 <DataGrid
-                                    apiRef={apiRef}
                                     rows={rows}
                                     columns={columns}
                                     initialState={{
@@ -73,7 +72,7 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                                             sortModel: [sort],
                                         },
                                     }}
-                                    pageSizeOptions={[5, 10, 20, 50]}
+                                    pageSizeOptions={[5, 10, 20, 50, 100]}
                                     {...(!noClick && { onRowClick: handleRowClick })}
                                     loading={loading}
                                     slotProps={{

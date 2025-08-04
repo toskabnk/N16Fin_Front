@@ -10,7 +10,7 @@ import Autocomplete from "../../components/Forms/Autocomplete";
 import SupplierService from "../../services/supplierService";
 import ShareTypesService from "../../services/shareTypesService";
 import FormikTextField from "../../components/FormikTextField";
-import { Button, Card, CardHeader, Checkbox, Divider, FormControl, FormControlLabel, FormHelperText, InputAdornment, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton } from "@mui/material";
+import { FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
 import CenterService from "../../services/centerService";
 import TransferList from "../../components/TransferListComponent";
@@ -18,6 +18,9 @@ import InvoiceService from "../../services/invoiceService";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+import BusinessLineService from "../../services/businessLineService";
+import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
+import ConceptService from "../../services/conceptService";
 
 function InvoiceForm() {
     //Hooks
@@ -42,12 +45,20 @@ function InvoiceForm() {
     const [supplierValue, setSupplierValue] = useState('');
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     //Estados para las lineas de negocio
+    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
     const [businessLines, setBusinessLines] = useState([]);
+    const [businessLineValue, setBusinessLineValue] = useState('');
+    const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
     const [loadingShareTypes, setLoadingShareTypes] = useState(true);
     const [shareTypes, setShareTypes] = useState([]);
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
+    //Estados para los conceptos
+    const [loadingConcepts, setLoadingConcepts] = useState(true);
+    const [concepts, setConcepts] = useState([]);
+    const [conceptValue, setConceptValue] = useState('');
+    const [selectedConcept, setSelectedConcept] = useState(null);
     //Estados para los centros
     const [loadingCenters, setLoadingCenters] = useState(true);
     const [centers, setCenters] = useState([]);
@@ -90,6 +101,7 @@ function InvoiceForm() {
             business_line_id: null,
             share_type_id: null,
             type: "in",
+            concept: "",
         },
         validationSchema: Yup.object({
             reference: Yup.string().required("Campo requerido"),
@@ -100,6 +112,7 @@ function InvoiceForm() {
             business_line_id: Yup.string().nullable(),
             share_type_id: Yup.string().required("Campo requerido"),
             type: Yup.string().oneOf(["in", "out"], "Tipo de factura inválido").required("Campo requerido"),
+            concept: Yup.string().required("Campo requerido"),
         }),
         onSubmit: async (values) => {
             setLoading(true);
@@ -138,6 +151,8 @@ function InvoiceForm() {
         getSuppliers();
         getShareTypes();
         getCenters();
+        getBusinessLines();
+        getConcepts();
     }, [token]);
 
     //Si hay uns factura en la ubicación, se carga los datos en el formulario
@@ -145,7 +160,7 @@ function InvoiceForm() {
         if (id && location.state?.objectID) {
             setIsEdit(true);
             console.log(location.state.objectID);
-            const { reference, month, invoice_date, amount_total, type, supplier, manual, centers, business_line, share_type} = location.state.objectID;
+            const { reference, month, invoice_date, amount_total, type, supplier, manual, centers, business_line, share_type, concept} = location.state.objectID;
             formik.setValues({
                 reference: reference,
                 amount_total: amount_total,
@@ -173,6 +188,16 @@ function InvoiceForm() {
             if(invoice_date){
                 setInvoiceDate(dayjs(invoice_date));
                 formik.setFieldValue('invoice_date', dayjs(invoice_date));
+            }
+            if(business_line) {
+                setSelectedBusinessLine(business_line);
+                setBusinessLineValue(business_line.name);
+                formik.setFieldValue("business_line_id", business_line.id);
+            }
+            if(concept) {
+                setSelectedConcept(concept);
+                setConceptValue(concept);
+                formik.setFieldValue("concept", concept);
             }
         }
     }, [id, invoiceID]);
@@ -210,7 +235,7 @@ function InvoiceForm() {
         }
     }
 
-     const getShareTypes = async () => {
+    const getShareTypes = async () => {
         try {
             setLoadingShareTypes(true);
             const response = await ShareTypesService.getAll(token);
@@ -231,6 +256,30 @@ function InvoiceForm() {
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los centros");
             setLoadingCenters(false);
+        }
+    }
+
+    const getBusinessLines = async () => {
+        try {
+            setLoadingBusinessLines(true);
+            const response = await BusinessLineService.getAll(token);
+            setBusinessLines(response.data);
+            setLoadingBusinessLines(false);
+        } catch (error) {
+            errorSnackbar(error.message, "Error al cargar las líneas de negocio");
+            setLoadingBusinessLines(false);
+        }
+    }
+
+    const getConcepts = async () => {
+        try {
+            setLoadingConcepts(true);
+            const response = await ConceptService.getAll(token);
+            setConcepts(response.data);
+            setLoadingConcepts(false);
+        } catch (error) {
+            errorSnackbar(error.message, "Error al cargar los conceptos");
+            setLoadingConcepts(false);
         }
     }
 
@@ -271,8 +320,12 @@ function InvoiceForm() {
             loading={loading}
             loadingDelete={loadingDelete}
             handleDelete={handleDelete}
-            onSubmit={formik.handleSubmit}>
-                    <Grid size={12}>
+            largeSize={12}>
+                <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                    <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
+                        <Typography variant="h6" gutterBottom>
+                            Datos de la Factura
+                        </Typography>
                         <Autocomplete
                             loading={loadingSuppliers}
                             id="supplier_id"
@@ -282,17 +335,6 @@ function InvoiceForm() {
                             setValue={setSupplierValue}
                             selected={selectedSupplier}
                             setSelected={setSelectedSupplier}
-                            required={true}
-                            formik={formik}/>
-                        <Autocomplete
-                            loading={loadingShareTypes}
-                            id="share_type_id"
-                            label="Reparto*"
-                            options={shareTypes}
-                            value={shareTypeValue}
-                            setValue={setShareTypeValue}
-                            selected={selectedShareType}
-                            setSelected={setSelectedShareType}
                             required={true}
                             formik={formik}/>
                         <FormikTextField
@@ -385,14 +427,52 @@ function InvoiceForm() {
                                 <FormControlLabel value="out" control={<Radio />} label="Out" />
                             </RadioGroup>
                         </FormControl>
-                    </Grid>
-                <Grid
-                    container
-                    spacing={2}
-                    sx={{ justifyContent: 'center', alignItems: 'center' }}>
-                        {loadingCenters ? 
-                            <Skeleton variant="rectangular" width={410} height={230} /> : 
-                            <TransferList left={left} right={right} setLeft={setLeft} setRight={setRight}/>}
+                        <Grid
+                            container
+                            spacing={2}
+                            sx={{ justifyContent: 'center', alignItems: 'center' }}>
+                                {loadingCenters ? 
+                                    <Skeleton variant="rectangular" width={410} height={230} /> : 
+                                    <TransferList left={left} right={right} setLeft={setLeft} setRight={setRight}/>}
+                        </Grid>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                    <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
+                        <Typography variant="h6" gutterBottom>
+                            Facturacion
+                        </Typography>
+                        <Autocomplete
+                            loading={loadingShareTypes}
+                            id="share_type_id"
+                            label="Reparto*"
+                            options={shareTypes}
+                            value={shareTypeValue}
+                            setValue={setShareTypeValue}
+                            selected={selectedShareType}
+                            setSelected={setSelectedShareType}
+                            required={true}
+                            formik={formik}/>
+                        <Autocomplete
+                            loading={loadingBusinessLines}
+                            id="business_line_id"
+                            label="Linea de Negocio"
+                            options={businessLines}
+                            value={businessLineValue}
+                            setValue={setBusinessLineValue}
+                            selected={selectedBusinessLine}
+                            setSelected={setSelectedBusinessLine}
+                            required={true}
+                            formik={formik}/>
+                        <CreatableAutocomplete
+                            id="concept"
+                            value={conceptValue}
+                            setValue={setConceptValue}
+                            options={concepts}
+                            label="Concepto*"
+                            formik={formik}
+                        />
+                    </Paper>
                 </Grid>
             </FormGrid>
     );

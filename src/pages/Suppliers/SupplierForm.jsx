@@ -1,4 +1,4 @@
-import { Grid, Skeleton } from "@mui/material";
+import { Grid, Paper, Skeleton, Typography } from "@mui/material";
 import FormGrid from "../../components/FormGrid";
 import TransferList from "../../components/TransferListComponent";
 import { useEffect, useState } from "react";
@@ -11,6 +11,11 @@ import SupplierService from "../../services/supplierService";
 import FormikTextField from "../../components/FormikTextField";
 import CenterService from "../../services/centerService";
 import Swal from "sweetalert2";
+import Autocomplete from "../../components/Forms/Autocomplete";
+import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
+import ShareTypesService from "../../services/shareTypesService";
+import BusinessLineService from "../../services/businessLineService";
+import ConceptService from "../../services/conceptService";
 
 
 function SupplierForm(){
@@ -36,6 +41,21 @@ function SupplierForm(){
     //Estados para la transfer list
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
+    //Estados para las lineas de negocio
+    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
+    const [businessLines, setBusinessLines] = useState([]);
+    const [businessLineValue, setBusinessLineValue] = useState('');
+    const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
+    //Estados para los tipos de reparto
+    const [loadingShareTypes, setLoadingShareTypes] = useState(true);
+    const [shareTypes, setShareTypes] = useState([]);
+    const [shareTypeValue, setShareTypeValue] = useState('');
+    const [selectedShareType, setSelectedShareType] = useState(null);
+    //Estados para los conceptos
+    const [loadingConcepts, setLoadingConcepts] = useState(true);
+    const [concepts, setConcepts] = useState([]);
+    const [conceptValue, setConceptValue] = useState('');
+    const [selectedConcept, setSelectedConcept] = useState(null);
 
     //Formik para el formulario
     const formik = useFormik({
@@ -83,14 +103,34 @@ function SupplierForm(){
             formik.setValues({
                 name: location.state.objectID.name,
                 type: location.state.objectID.type,
-                centers: location.state.objectID.centers || []
+                centers: location.state.objectID.centers || [],
+                concept: location.state.objectID.concept || '',
+                business_line_id: location.state.objectID.business_line?.id,
             });
+            if(location.state.objectID.business_line) {
+                setSelectedBusinessLine(location.state.objectID.business_line);
+                setBusinessLineValue(location.state.objectID.business_line.name);
+                formik.setFieldValue("business_line_id", location.state.objectID.business_line.id);
+            }
+            if(location.state.objectID.concept) {
+                setSelectedConcept(location.state.objectID.concept);
+                setConceptValue(location.state.objectID.concept);
+                formik.setFieldValue("concept", location.state.objectID.concept);
+            }
+            if(location.state.objectID.share_type) {
+                setSelectedShareType(location.state.objectID.share_type);
+                setShareTypeValue(location.state.objectID.share_type.name);
+                formik.setFieldValue("share_type_id", location.state.objectID.share_type.id);
+            }
         }
     }, [supplierID, id]);
 
     //Al cargar el componente, obtiene los centros
     useEffect(() => {
         getCenters();
+        getShareTypes();
+        getBusinessLines();
+        getConcepts();
     }, [token]);
 
     //Al cargar los centros, los mete en la lista de centros izquierda o derecha segun los centros seleccionados de la factura
@@ -121,6 +161,42 @@ function SupplierForm(){
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los centros");
             setLoadingCenters(false);
+        }
+    }
+
+    const getShareTypes = async () => {
+        try {
+            setLoadingShareTypes(true);
+            const response = await ShareTypesService.getAll(token);
+            setShareTypes(response.data);
+            setLoadingShareTypes(false);
+        } catch (error) {
+            errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
+            setLoadingShareTypes(false);
+        }
+    }
+
+    const getBusinessLines = async () => {
+        try {
+            setLoadingBusinessLines(true);
+            const response = await BusinessLineService.getAll(token);
+            setBusinessLines(response.data);
+            setLoadingBusinessLines(false);
+        } catch (error) {
+            errorSnackbar(error.message, "Error al cargar las líneas de negocio");
+            setLoadingBusinessLines(false);
+        }
+    }
+
+    const getConcepts = async () => {
+        try {
+            setLoadingConcepts(true);
+            const response = await ConceptService.getAll(token);
+            setConcepts(response.data);
+            setLoadingConcepts(false);
+        } catch (error) {
+            errorSnackbar(error.message, "Error al cargar los conceptos");
+            setLoadingConcepts(false);
         }
     }
 
@@ -160,30 +236,72 @@ function SupplierForm(){
             loading={loading}
             loadingDelete={loadingDelete}
             handleDelete={handleDelete}
-            onSubmit={formik.handleSubmit}>
-                <Grid size={12}>
-                    <FormikTextField
+            largeSize={12}>
+                <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                    <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
+                        <Typography variant="h6" gutterBottom>
+                            Datos del Proveedor
+                        </Typography>
+                        <FormikTextField
                             id="name"
                             type="text"
                             label="Nombre"
                             formik={formik}
                             required={true}
                             fullWidth={true}/>
-                    <FormikTextField
+                        <FormikTextField
                             id="type"
                             type="text"
                             label="Tipo"
                             formik={formik}
                             required={true}
                             fullWidth={true}/>
+                        <Grid
+                            container
+                            spacing={2}
+                            sx={{ justifyContent: 'center', alignItems: 'center' }}>
+                            {loadingCenters ? 
+                                <Skeleton variant="rectangular" width={410} height={230} /> : 
+                                <TransferList left={left} right={right} setLeft={setLeft} setRight={setRight}/>}
+                        </Grid>
+                    </Paper>
                 </Grid>
-                <Grid
-                    container
-                    spacing={2}
-                    sx={{ justifyContent: 'center', alignItems: 'center' }}>
-                        {loadingCenters ? 
-                            <Skeleton variant="rectangular" width={410} height={230} /> : 
-                            <TransferList left={left} right={right} setLeft={setLeft} setRight={setRight}/>}
+                <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                    <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
+                        <Typography variant="h6" gutterBottom>
+                            Facturacion
+                        </Typography>
+                        <Autocomplete
+                            loading={loadingShareTypes}
+                            id="share_type_id"
+                            label="Reparto*"
+                            options={shareTypes}
+                            value={shareTypeValue}
+                            setValue={setShareTypeValue}
+                            selected={selectedShareType}
+                            setSelected={setSelectedShareType}
+                            required={true}
+                            formik={formik}/>
+                        <Autocomplete
+                            loading={loadingBusinessLines}
+                            id="business_line_id"
+                            label="Linea de Negocio"
+                            options={businessLines}
+                            value={businessLineValue}
+                            setValue={setBusinessLineValue}
+                            selected={selectedBusinessLine}
+                            setSelected={setSelectedBusinessLine}
+                            required={true}
+                            formik={formik}/>
+                        <CreatableAutocomplete
+                            id="concept"
+                            value={conceptValue}
+                            setValue={setConceptValue}
+                            options={concepts}
+                            label="Concepto*"
+                            formik={formik}
+                        />
+                    </Paper>
                 </Grid>
         </FormGrid>
     )
