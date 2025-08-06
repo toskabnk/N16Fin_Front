@@ -1,4 +1,4 @@
-import { Grid, Paper, Skeleton, Typography } from "@mui/material";
+import { Grid, Paper, Skeleton, Typography,  Checkbox, FormControlLabel } from "@mui/material";
 import FormGrid from "../../components/FormGrid";
 import TransferList from "../../components/TransferListComponent";
 import { useEffect, useState } from "react";
@@ -62,7 +62,8 @@ function SupplierForm(){
         initialValues: {
             name: '',
             type: '',
-            centers: []
+            centers: [],
+            only_add_vat: false,
         },
         validationSchema: Yup.object({
             name: Yup.string().required('El nombre es obligatorio'),
@@ -106,6 +107,7 @@ function SupplierForm(){
                 centers: location.state.objectID.centers || [],
                 concept: location.state.objectID.concept || '',
                 business_line_id: location.state.objectID.business_line?.id,
+                only_add_vat: location.state.objectID.only_add_vat || false,
             });
             if(location.state.objectID.business_line) {
                 setSelectedBusinessLine(location.state.objectID.business_line);
@@ -301,6 +303,20 @@ function SupplierForm(){
                             label="Concepto*"
                             formik={formik}
                         />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    id="only_add_vat"
+                                    name="only_add_vat"
+                                    checked={formik.values.only_add_vat}
+                                    onChange={formik.handleChange}
+                                    color="primary"
+                                />
+                            }
+                            label="Sólo añadir IVA"
+                            sx={{ mt: 1 }} 
+                        />
+                        
                     </Paper>
                 </Grid>
         </FormGrid>
