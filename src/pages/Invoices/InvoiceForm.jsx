@@ -168,6 +168,7 @@ function InvoiceForm() {
                 centers: centers,
                 business_line_id: business_line?.id,
                 type: type || "in",
+                concept: concept || '',
             });
             if(supplier) {
                 setSelectedSupplier(supplier);
