@@ -17,6 +17,7 @@ import BusinessLineForm from '../pages/BusinessLines/BusinessLineForm.jsx';
 import ObjectivesAndResults from '../pages/Objectives/ObjectivesAndResults.jsx';
 import SupplierForm from '../pages/Suppliers/SupplierForm.jsx';
 import Profile from '../pages/Profile/Profile.jsx';
+import Costs from '../pages/Costs/Costs.jsx';
 import Concepts from '../pages/Concepts/Concepts.jsx';
 import ConceptForm from '../pages/Concepts/ConceptForm.jsx';
 
@@ -49,6 +50,7 @@ const Routes = () => {
                         <Route path='/concepts/:id' element={<ConceptForm/>} />
                         <Route path="/" element={<Home/>} />
                         <Route path="/profile" element={<Profile/>} />
+                        <Route path="/costs" element={<Costs/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>
