@@ -117,7 +117,7 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                     sorting: { sortModel: [sort] },
                   }}
                   pageSizeOptions={[5, 10, 20, 50, 100]}
-                  onRowClick={handleRowClick}
+                  {...(!noClick && { onRowClick: handleRowClick })}
                   loading={loading}
                   slotProps={{
                     loadingOverlay: {
