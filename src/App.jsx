@@ -5,7 +5,7 @@ import Routes from './routes/Routes';
 import HeaderBar from './components/HeaderBar';
 import { useDispatch, useSelector } from 'react-redux';
 import YearService from './services/yearService';
-import { setYear } from './redux/dataSlice';
+import { setYear, setYears } from './redux/dataSlice';
 
 function App() {
   //Variables
@@ -22,6 +22,7 @@ function App() {
     // Si el usuario no esta autenticado, colapsa la barra lateral
     if (isAuthenticated) {
       getCurrentYear();
+      getYears();
     }
   }, [isAuthenticated]);
 
@@ -32,6 +33,15 @@ function App() {
       dispatch(setYear(currentYear.data.year));
     } catch (error) {
       console.error('Error fetching current year:', error);
+    }
+  };
+
+  const getYears = async () => {
+    try {
+      const years = await YearService.getAll(token);
+      dispatch(setYears(years.data));
+    } catch (error) {
+      console.error('Error fetching years:', error);
     }
   };
 

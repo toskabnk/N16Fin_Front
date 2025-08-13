@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteUser } from '../redux/userSlice';
 import { logout } from '../services/authService';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Select } from '@mui/material';
+import { setYear } from '../redux/dataSlice';
 
 /**
  * Crea la barra de navegacion superior
@@ -34,6 +36,7 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
   const token = useSelector((state) => state.user.token)
   const name = useSelector((state) => state.user.name)
   const year = useSelector((state) => state.data.year);
+  const years = useSelector((state) => state.data.years);
 
   //Dispatch para ejecutar acciones y navigate para redireccionar
   const dispatch = useDispatch();
@@ -43,6 +46,10 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  //Estados para el año
+  const [open, setOpen] = useState(false);
+  const [selectYear, setSelectYear] = useState('');
 
   //Funcion para cerrar el menu de usuario
   const handleCloseUserMenu = (url) => {
@@ -112,6 +119,23 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
     }
   ]
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleYearChange = (event) => {
+    setSelectYear(event.target.value);
+  };
+
+  const handleSave = () => {
+    dispatch(setYear(selectYear));
+    setOpen(false);
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -131,9 +155,15 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           N16
         </Typography>
-        <Typography variant="h6" sx={{px: 2}}>
-          {year ? `Año: ${year}` : 'Cargando año...'}
-        </Typography>
+        <Button variant="text"
+          sx={{
+            color: 'white',
+            textTransform: 'none',
+            fontSize: '1.2rem',
+          }}
+          onClick={handleClickOpen}>
+            {year ? `Año: ${year}` : 'Cargando año...'}
+        </Button>
         {//Si esta autenticado muestra el menu de usuario
           isAuthenticated ?
             <div>
@@ -177,7 +207,28 @@ function HeaderBar({ setCollapsed, collapsed, isAuthenticated }) {
             </div>
             : null}
       </Toolbar>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Selecciona un año</DialogTitle>
+        <DialogContent>
+          <Select
+            value={selectYear}
+            onChange={handleYearChange}
+            fullWidth
+          >
+            {years.map((y) => (
+              <MenuItem key={y.year} value={y.year}>
+                {y.year}
+              </MenuItem>
+            ))}
+          </Select>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSave}>Cambiar Año</Button>
+          <Button onClick={handleClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </AppBar>
+    
   );
 }
 

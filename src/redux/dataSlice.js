@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // Initial state for the data slice
 const initialState = {
     year: null,
+    years: [],
     numberCheckInvoices: 50,
 };
 
@@ -16,6 +17,9 @@ export const dataSlice = createSlice({
         clearYear: (state) => {
             state.year = null;
         },
+        setYears: (state, action) => {
+            state.years = action.payload;
+        },
         setNumberCheckInvoices: (state, action) => {
             state.numberCheckInvoices = action.payload;
         },
@@ -25,5 +29,5 @@ export const dataSlice = createSlice({
     },
 });
 
-export const { setYear, clearYear, setNumberCheckInvoices, clearNumberCheckInvoices } = dataSlice.actions;
+export const { setYear, clearYear, setYears, setNumberCheckInvoices, clearNumberCheckInvoices } = dataSlice.actions;
 export default dataSlice.reducer;
