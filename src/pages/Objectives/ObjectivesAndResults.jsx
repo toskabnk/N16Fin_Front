@@ -206,6 +206,12 @@ function ObjectivesAndResults() {
                             ])
                         );
                         apiData.projected_growth = (apiData.projected_growth + (parseFloat(data.projected_growth) || 0));
+
+                        if(data.notFound == true){
+                            setNotFound(true);
+                        } else {
+                            setNotFound(false);
+                        }
                     }
 
                     //Calculate the average projected growth and set it to 2 decimal places
@@ -242,12 +248,17 @@ function ObjectivesAndResults() {
                     const processed = rowsData.map(row => ({
                         ...row,
                         objetivosActual: Number((row.realAnterior || 0) * (parseFloat(response.data.data[0].projected_growth) || 1)),
-                        // Puedes calcular aquí desviaciones también si quieres
                     }));
 
                     const totalRow = getTotalRow(processed, parseFloat(response.data.data[0].projected_growth) || 1);
 
                     rowsData.push(totalRow);
+
+                    if(response.data.data[0].notFound == true){
+                        setNotFound(true);
+                    } else {
+                        setNotFound(false);
+                    }
 
                     setRows(rowsData);
                 }
