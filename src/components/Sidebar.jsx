@@ -10,6 +10,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import GroupIcon from '@mui/icons-material/Group';
 
 
 import { useSelector } from 'react-redux';
@@ -114,19 +115,23 @@ function SidebarComponent({ openSidebar, setOpenSidebar }) {
             <Menu>
               <CustomMenuItem active={location.pathname === '/dashboard'} component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</CustomMenuItem>
               <SubMenu label="Obj&Res" icon={<InsertDriveFileIcon />}>
-                <CustomMenuItem active={location.pathname === '/objectives'} component={<Link to="/objectives" />} icon={<DescriptionIcon/>}> Objetivos y Resultados </CustomMenuItem>              </SubMenu>
+                <CustomMenuItem active={location.pathname === '/objectives'} component={<Link to="/objectives" />} icon={<DescriptionIcon/>}> Objetivos y Resultados </CustomMenuItem>
+              </SubMenu>
+              <SubMenu label="RH" icon={<GroupIcon />}>
+                <CustomMenuItem active={location.pathname === '/costs'} component={<Link to="/costs" />} icon={<DescriptionIcon/>}> Gastos Explotación </CustomMenuItem>
+              </SubMenu>
               <SubMenu label="Facturación" icon={<InsertDriveFileIcon />}>
-                <CustomMenuItem active={location.pathname === '/invoices'} component={<Link to="/invoices" />} icon={<DescriptionIcon/>}> Facturas N16Fin </CustomMenuItem>
+                <CustomMenuItem active={location.pathname === '/invoices'} component={<Link to="/invoices" />} icon={<DescriptionIcon/>}> Facturas Proveedores </CustomMenuItem>
                 {
                 //<CustomMenuItem active={location.pathname === '/odooInvoices'} component={<Link to="/odooInvoices" />} icon={<ReceiptIcon />}> Facturas Odoo </CustomMenuItem>
                 }
+                <CustomMenuItem active={location.pathname === '/client-invoices'} component={<Link to="/client-invoices" />} icon={<DescriptionIcon/>}> Facturas Clientes </CustomMenuItem>
                 <CustomMenuItem active={location.pathname === '/suppliers'} component={<Link to="/suppliers" />} icon={<WarehouseIcon />}> Proveedores </CustomMenuItem>
               </SubMenu>
               <SubMenu label="Sistema" icon={<SettingsIcon />}>
                 <CustomMenuItem active={location.pathname === '/users'} component={<Link to="/users" />} icon={<DescriptionIcon/>}> Usuarios </CustomMenuItem>
                 <CustomMenuItem active={location.pathname === '/centers'} component={<Link to="/centers" />} icon={<DescriptionIcon/>}> Centros </CustomMenuItem>
                 <CustomMenuItem active={location.pathname === '/business-lines'} component={<Link to="/business-lines" />} icon={<DescriptionIcon/>}> Líneas Negocio </CustomMenuItem>
-                <CustomMenuItem active={location.pathname === '/costs'} component={<Link to="/costs" />} icon={<DescriptionIcon/>}> Gastos Explotación </CustomMenuItem>
                 <CustomMenuItem active={location.pathname === '/concepts'} component={<Link to="/concepts" />} icon={<DescriptionIcon/>}> Conceptos </CustomMenuItem>
               </SubMenu>
             </Menu>

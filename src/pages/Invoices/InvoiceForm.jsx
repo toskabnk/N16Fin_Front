@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import { useSelector } from "react-redux";
 import { useFormik } from "formik";
@@ -35,6 +35,7 @@ function InvoiceForm() {
     const [isEdit, setIsEdit] = useState(false);
     //ID del eventType que se encuentra en la ruta
     const { id } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     //ID del eventType que se encuentra en la ubicación
     const invoiceID = location.state?.objectID?.id;
     //Token de usuario
@@ -135,7 +136,12 @@ function InvoiceForm() {
                     console.log("Creando factura", formValues);
                     successSnackbar("Factura creada correctamente", "success");
                 }
-                navigate("/invoices");
+
+                if(searchParams.get("from") === "client-invoices") {
+                    navigate("/client-invoices");
+                } else {
+                    navigate("/invoices");
+                }
             } catch (error) {
                 errorSnackbar(error, "Error al guardar la factura");
             } finally {
@@ -153,6 +159,7 @@ function InvoiceForm() {
         getCenters();
         getBusinessLines();
         getConcepts();
+        console.log("Desde:", searchParams.get("from"));
     }, [token]);
 
     //Si hay uns factura en la ubicación, se carga los datos en el formulario
@@ -321,7 +328,8 @@ function InvoiceForm() {
             loading={loading}
             loadingDelete={loadingDelete}
             handleDelete={handleDelete}
-            largeSize={12}>
+            largeSize={12}
+            searchParams={searchParams}>
                 <Grid size={{ xs: 12, md: 6, lg: 6 }}>
                     <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
                         <Typography variant="h6" gutterBottom>

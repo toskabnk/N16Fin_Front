@@ -6,7 +6,7 @@ import { Box } from "@mui/system";
 import { useNavigate } from "react-router-dom";
 import HeaderPage from "./PagesComponents/HeaderPage";
 
-const FormGrid = ({ children, formik, name, url, isEdit, loading, loadingDelete, handleDelete, onSubmit, noDelete=false, largeSize=6 }) => {
+const FormGrid = ({ children, formik, name, url, isEdit, loading, loadingDelete, handleDelete, onSubmit, noDelete=false, largeSize=6, searchParams = null }) => {
     const navigate = useNavigate();
     return (
             <HeaderPage name={name} url={url} subname={isEdit ? 'Editar' : 'Crear'} >
@@ -35,7 +35,11 @@ const FormGrid = ({ children, formik, name, url, isEdit, loading, loadingDelete,
                                             sx={{marginRight: 2}}
                                             onClick={e => {
                                                 e.preventDefault();
-                                                navigate(`${url}`);
+                                                if (searchParams?.get("from") !== null && searchParams?.get("from") !== undefined) {
+                                                    navigate("/" + searchParams.get("from"));
+                                                } else {
+                                                    navigate(`${url}`);
+                                                }
                                             }}
                                         >Cancelar
                                         </Button>

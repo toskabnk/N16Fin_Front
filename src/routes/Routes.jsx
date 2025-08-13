@@ -20,6 +20,7 @@ import Profile from '../pages/Profile/Profile.jsx';
 import Costs from '../pages/Costs/Costs.jsx';
 import Concepts from '../pages/Concepts/Concepts.jsx';
 import ConceptForm from '../pages/Concepts/ConceptForm.jsx';
+import ClientInvoices from '../pages/Invoices/ClientInvoices.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -48,6 +49,7 @@ const Routes = () => {
                         <Route path="/objectives" element={<ObjectivesAndResults/>} />
                         <Route path='/concepts' element={<Concepts/>} />
                         <Route path='/concepts/:id' element={<ConceptForm/>} />
+                        <Route path="/client-invoices" element={<ClientInvoices/>} />
                         <Route path="/" element={<Home/>} />
                         <Route path="/profile" element={<Profile/>} />
                         <Route path="/costs" element={<Costs/>} />

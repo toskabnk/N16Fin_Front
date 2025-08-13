@@ -6,6 +6,16 @@ class InvoiceService extends AbstractApiService {
         return "/invoices";
     }
 
+    async getAll(access_token, params = {}) {
+        try {
+            const response = await n16FinApi.get(this.getUrl(), { params, bearerToken: access_token });
+            return response.data;
+        } catch (error) {
+            console.error("Error during getAll:", error);
+            throw error;
+        }
+    }
+
     /**
      * Obtiene todas las facturas de Odoo.
      * Corresponde a viewOdooInvoices en InvoiceController.
