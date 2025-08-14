@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGridApiRef } from "@mui/x-data-grid";
 import CenterCostService from "../../services/CenterCostService";
-import CenterService from "../../services/CenterService";
+import CenterService from "../../services/centerService";
 import yearService from "../../services/yearService";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import HeaderPage from "../../components/PagesComponents/HeaderPage";
