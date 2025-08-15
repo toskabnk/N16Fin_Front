@@ -1,13 +1,12 @@
-import ListDataGrid from "../../components/ListDataGrid";
-import { Box, Button, FormControl, InputLabel, Select, MenuItem, TextField } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, Select, MenuItem, TextField, Typography, Link, Paper, Grid } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid"
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGridApiRef } from "@mui/x-data-grid";
 import CenterCostService from "../../services/CenterCostService";
 import CenterService from "../../services/centerService";
-import yearService from "../../services/yearService";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
-import HeaderPage from "../../components/PagesComponents/HeaderPage";
+import SaveIcon from '@mui/icons-material/Save';
 
 const meses = ["sep", "oct", "nov", "dic", "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago"];
 const cuatrimestres = [
@@ -138,12 +137,24 @@ function Costs() {
     const token = useSelector((state) => state.user.token);
     const [centers, setCenters] = useState([]);
     const [selectedCenter, setSelectedCenter] = useState("");
-    const [selectedYear, setSelectedYear] = useState("");
+    const year = useSelector((state) => state.data.year);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const apiRef = useGridApiRef();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+
+    //datagrid
+    const handleRowClick = (params) => {
+        console.log(params.row);
+        navigate(`${url}/${params.id}`, { state: { objectID: params.row } });
+    };
+    useEffect(() => {
+        if (rows.length > 0) {
+        apiRef.current.autosizeColumns({ includeHeaders: true });
+        }
+    }, [rows]);
+
 
     // create-or-update & dirty
     const [costId, setCostId] = useState(null);
@@ -179,12 +190,13 @@ function Costs() {
         CenterService.getAll(token)
             .then((resp) => setCenters(resp.data))
             .catch((err) => errorSnackbar(err.message));
-
-        yearService
-            .getCurrentYear(token)
-            .then((year) => setSelectedYear(year.data.year || ""))
-            .catch((err) => errorSnackbar(err.message));
     }, [token, errorSnackbar]);
+
+
+    useEffect(() => {
+        if (!year) return;
+        handleLoad();
+    }, [selectedCenter, year]);
 
     // Fila vacía por concepto
     const emptyRowForConcept = useMemo(() => {
@@ -231,10 +243,10 @@ function Costs() {
     };
 
     const handleLoad = async () => {
-        if (!selectedCenter || !selectedYear) return;
+        if (!selectedCenter || !year) return;
         setLoading(true);
         try {
-            const resp = await CenterCostService.getByCenterAndYear(selectedCenter, selectedYear, token);
+            const resp = await CenterCostService.getByCenterAndYear(selectedCenter, year, token);
             const data = resp?.data ?? resp;
             const conceptos = data?.conceptos ?? null;
 
@@ -284,13 +296,13 @@ function Costs() {
 
         return {
             center_id: selectedCenter,
-            year: String(selectedYear),
+            year: String(year),
             conceptos,
         };
     };
 
     const handleSave = async () => {
-        if (!selectedCenter || !selectedYear) {
+        if (!selectedCenter || !year) {
             errorSnackbar("Selecciona centro y año antes de guardar.");
             return;
         }
@@ -340,99 +352,142 @@ function Costs() {
 
     return (
 
-        <HeaderPage name="Gastos explotación" subname="Lista" url="/costs">
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Box
-                sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100vh", // ocupa toda la pantalla
-                    boxSizing: "border-box",
-                    minWidth: 0,
-                    overflow: "hidden",
-                }}>
-                <Box
-                    sx={{
-                        display: "flex",
-                        gap: 2,
-                        alignItems: "center",
-                        mb: 2,
-                        ml: 2,
-                        flexWrap: "wrap",
-                        minWidth: 0,
-                    }}
-                >
-                    <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel id="center-select-label">Centro</InputLabel>
-                        <Select
-                            labelId="center-select-label"
-                            value={selectedCenter}
-                            label="Centro"
-                            onChange={(e) => setSelectedCenter(e.target.value)}
-                        >
-                            {centers.map((center) => (
-                                <MenuItem key={center.id} value={center.id}>
-                                    {center.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <TextField
-                        label="Año"
-                        value={selectedYear}
-                        onChange={(e) => setSelectedYear(e.target.value)}
-                        sx={{ width: 120 }}
-                    />
-
-                    <Button
-                        variant="contained"
-                        color={dirty ? "warning" : "primary"}
-                        onClick={handleSave}
-                        disabled={
-                            !selectedCenter || !selectedYear || saving || loading || !dirty
-                        }
-                    >
-                        {saving
-                            ? "Guardando..."
-                            : costId
-                                ? dirty
-                                    ? "Actualizar cambios"
-                                    : "Actualizar"
-                                : dirty
-                                    ? "Crear"
-                                    : "Crear"}
-                    </Button>
-
-                    <Button
-                        variant="text"
-                        onClick={handleLoad}
-                        disabled={!selectedCenter || !selectedYear || saving || loading}
-                    >
-                        Cargar
-                    </Button>
-                </Box>
-
-                <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
-                    <ListDataGrid
-                        rows={rows}
-                        columns={columns}
-                        density="comfortable"
-                        name="Gastos explotación"
-                        subname="Lista"
-                        url="/costs"
-                        createButton={false}
-                        loading={loading}
-                        noClick
-                        apiRef={apiRef}
-                        editable
-                        handleRowUpdate={handleRowUpdate}
-                        fillParent
-                        showHeader={false}
-                    />
-                </Box>
+                display="flex"
+                alignItems="left"
+                p={2}>
+                <>
+                    <Typography variant="body1" >
+                        <Link to={'/costs'} style={{ textDecoration: "none" }}>
+                            Gastos de explotacion
+                        </Link>
+                    </Typography>
+                </>
             </Box>
-        </HeaderPage>
+            <Paper>
+
+                <Grid container spacing={2}>
+                    <Grid size={12}>
+                        <Box
+                            sx={{ display: 'flex', justifyContent: 'space-between' }}
+                            gap={4}
+                            p={2}>
+                            <Typography variant="h6">Gastos Explotacion</Typography>
+                            <Button
+                                variant="contained"
+                                color={dirty ? "warning" : "primary"}
+                                loadingPosition="start"
+                                loading={saving}
+                                startIcon={<SaveIcon />}
+                                disabled={
+                                    !selectedCenter || !year || saving || loading || !dirty
+                                }
+                                onClick={handleSave}>
+                                {saving
+                                    ? "Guardando..."
+                                    : costId
+                                        ? dirty
+                                            ? "Actualizar cambios"
+                                            : "Actualizar"
+                                        : dirty
+                                            ? "Crear"
+                                            : "Crear"}
+                            </Button>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                gap: 2,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                mb: 2,
+                                ml: 2,
+                                flexWrap: "wrap",
+                                width: "100%",
+
+                            }}
+                        >
+                            <FormControl sx={{ width: "100%", mr: 4 }}>
+                                <InputLabel id="center-select-label">Centro</InputLabel>
+                                <Select
+                                    labelId="center-select-label"
+                                    value={selectedCenter}
+                                    label="Centro"
+                                    onChange={(e) => setSelectedCenter(e.target.value)}
+                                >
+                                    {centers.map((center) => (
+                                        <MenuItem key={center.id} value={center.id}>
+                                            {center.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+
+
+                        </Box>
+                    </Grid>
+
+                    <Grid size={12}>
+                        <Box
+                            gap={4}
+                            p={2}
+                        >
+                            <DataGrid
+                                rows={rows}
+                                columns={columns}
+                                apiRef={apiRef}
+                                initialState={{
+                                    pagination: {
+                                        paginationModel: { page: 0, pageSize: 10 },
+                                    },
+                                    sorting: { sortModel: [] },
+                                }}
+                                pageSizeOptions={[5, 10, 20, 50, 100]}
+                                {...({ onRowClick: handleRowClick })}
+                                loading={loading}
+                                slotProps={{
+                                    loadingOverlay: {
+                                        variant: "linear-progress",
+                                        noRowsVariant: "linear-progress",
+                                    },
+                                }}
+                                {...({
+                                    editMode: "row",
+                                    processRowUpdate: handleRowUpdate,
+                                })}
+                                sx={{
+                                    flex: 1,
+                                    minWidth: 0,
+                                    width: "100%",
+                                    height: "100%",
+                                }}
+                            />
+                            {/* OLD CALL
+                            <ListDataGrid
+                                rows={rows}
+                                columns={columns}
+                                density="comfortable"
+                                name="Gastos explotación"
+                                subname="Lista"
+                                url="/costs"
+                                createButton={false}
+                                loading={loading}
+                                noClick
+                                apiRef={apiRef}
+                                editable
+                                handleRowUpdate={handleRowUpdate}
+                                fillParent
+                                showHeader={false}
+                            />
+                            */}
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Paper>
+        </Box>
     );
 }
 
