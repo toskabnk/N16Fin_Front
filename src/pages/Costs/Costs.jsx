@@ -143,18 +143,22 @@ function Costs() {
     const [saving, setSaving] = useState(false);
     const apiRef = useGridApiRef();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
-
+    const [isEditing, setIsEditing] = useState(false);
     //datagrid
     const handleRowClick = (params) => {
         console.log(params.row);
         navigate(`${url}/${params.id}`, { state: { objectID: params.row } });
     };
     useEffect(() => {
-        if (rows.length > 0) {
-        apiRef.current.autosizeColumns({ includeHeaders: true });
-        }
-    }, [rows]);
-
+        if (isEditing) return;
+        requestAnimationFrame(() => {
+            apiRef.current?.autosizeColumns?.({
+                includeHeaders: true,
+                includeOutliers: false,
+                outliersFactor: 1.2,
+            });
+        });
+    }, [rows, isEditing]);
 
     // create-or-update & dirty
     const [costId, setCostId] = useState(null);
@@ -439,6 +443,9 @@ function Costs() {
                                 rows={rows}
                                 columns={columns}
                                 apiRef={apiRef}
+                                autosizeAfterMount
+                                onRowEditStart={() => setIsEditing(true)}
+                                onRowEditStop={() => setIsEditing(false)}
                                 initialState={{
                                     pagination: {
                                         paginationModel: { page: 0, pageSize: 10 },
