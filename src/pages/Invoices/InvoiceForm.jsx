@@ -7,7 +7,6 @@ import * as Yup from "yup";
 import FormGrid from "../../components/FormGrid";
 import { Grid } from "@mui/system";
 import Autocomplete from "../../components/Forms/Autocomplete";
-import SupplierService from "../../services/supplierService";
 import FormikTextField from "../../components/FormikTextField";
 import { FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
@@ -21,6 +20,7 @@ import { useCenters } from "../../hooks/useCenters";
 import { useBusinessLines } from "../../hooks/useBusinessLines";
 import { useConcepts } from "../../hooks/useConcepts";
 import { useShareTypes } from "../../hooks/useShareTypes";
+import { useSuppliers } from "../../hooks/useSupliers";
 
 function InvoiceForm() {
     //Hooks
@@ -28,6 +28,7 @@ function InvoiceForm() {
     const { businessLines, loadingBusinessLines } = useBusinessLines();
     const { concepts, loadingConcepts } = useConcepts();
     const { shareTypes, loadingShareTypes } = useShareTypes();
+    const { suppliers, setSuppliers } = useSuppliers();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -45,8 +46,6 @@ function InvoiceForm() {
     //Token de usuario
     const token = useSelector((state) => state.user.token);
     //Estados para los proveedores
-    const [loadingSuppliers, setLoadingSuppliers] = useState(true);
-    const [suppliers, setSuppliers] = useState([]);
     const [supplierValue, setSupplierValue] = useState('');
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     //Estados para las lineas de negocio
@@ -147,12 +146,6 @@ function InvoiceForm() {
     //#endregion
 
     //#region useEffects
-    //Carga los proveedores al cargar el componente
-    useEffect(() => {
-        getSuppliers();
-        console.log("Desde:", searchParams.get("from"));
-    }, [token]);
-
     //Si hay uns factura en la ubicación, se carga los datos en el formulario
     useEffect(() => {
         if (id && location.state?.objectID) {
@@ -222,18 +215,6 @@ function InvoiceForm() {
     //#endregion
 
     //#region Functions
-    const getSuppliers = async () => {
-        try {
-            setLoadingSuppliers(true);
-            const response = await SupplierService.getAll(token);
-            setSuppliers(response.data);
-            setLoadingSuppliers(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los proveedores");
-            setLoadingSuppliers(false);
-        }
-    }
-
     const handleDelete = async () => {  
         setLoadingDelete(true);
         Swal.fire({
