@@ -12,20 +12,20 @@ import ShareTypesService from "../../services/shareTypesService";
 import FormikTextField from "../../components/FormikTextField";
 import { FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
-import CenterService from "../../services/centerService";
 import TransferList from "../../components/TransferListComponent";
 import InvoiceService from "../../services/invoiceService";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
-import BusinessLineService from "../../services/businessLineService";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
 import ConceptService from "../../services/conceptService";
 import { useCenters } from "../../hooks/useCenters";
+import { useBusinessLines } from "../../hooks/useBusinessLines";
 
 function InvoiceForm() {
     //Hooks
     const { centers, loadingCenters } = useCenters();
+    const { businessLines, loadingBusinessLines } = useBusinessLines();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -48,8 +48,6 @@ function InvoiceForm() {
     const [supplierValue, setSupplierValue] = useState('');
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     //Estados para las lineas de negocio
-    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
-    const [businessLines, setBusinessLines] = useState([]);
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
@@ -155,7 +153,6 @@ function InvoiceForm() {
     useEffect(() => {
         getSuppliers();
         getShareTypes();
-        getBusinessLines();
         getConcepts();
         console.log("Desde:", searchParams.get("from"));
     }, [token]);
@@ -250,18 +247,6 @@ function InvoiceForm() {
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
             setLoadingShareTypes(false);
-        }
-    }
-
-    const getBusinessLines = async () => {
-        try {
-            setLoadingBusinessLines(true);
-            const response = await BusinessLineService.getAll(token);
-            setBusinessLines(response.data);
-            setLoadingBusinessLines(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar las líneas de negocio");
-            setLoadingBusinessLines(false);
         }
     }
 

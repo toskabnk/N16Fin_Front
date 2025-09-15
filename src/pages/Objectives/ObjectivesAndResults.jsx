@@ -4,16 +4,17 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
-import BusinessLineService from "../../services/businessLineService";
 import ObjetivesService from "../../services/objetivesService";
 import SaveIcon from '@mui/icons-material/Save';
 import { useCenters } from "../../hooks/useCenters";
+import { useBusinessLines } from "../../hooks/useBusinessLines";
 
 function ObjectivesAndResults() {
     //#region States and Variables
     //Hooks
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
     const { centers, loadingCenters } = useCenters();
+    const { businessLines, loadingBusinessLines } = useBusinessLines();
     //Token de usuario
     const token = useSelector((state) => state.user.token);
     //Year
@@ -27,10 +28,8 @@ function ObjectivesAndResults() {
     const [columns, setColumns] = useState([]);
 
     //Business Lines
-    const [bussinesLines, setBussinesLines] = useState([]);
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
-    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
 
     //Centers
     const [selectedCenter, setSelectedCenter] = useState(null);
@@ -101,10 +100,6 @@ function ObjectivesAndResults() {
     //#endregion
 
     //#region UseEffects
-    //Get the business lines and centers when the component mounts
-    useEffect(() => {
-        getBussinesLines();
-    }, [token]);
 
     //Get the objectives and results when the business line or center changes
     useEffect(() => {
@@ -137,18 +132,6 @@ function ObjectivesAndResults() {
         setProcessedRows([...processed, totalRow]);
     }, [rows]);
     //#endregion
-
-    const getBussinesLines = async () => {
-        try {
-            setLoadingBusinessLines(true);
-            const response = await BusinessLineService.getAll(token);
-            setBussinesLines(response.data);
-            setLoadingBusinessLines(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar las lineas de negocio");
-            setLoadingBusinessLines(false);
-        }
-    }
 
     const getObjectivesAndResults = async () => {
         try {
@@ -473,7 +456,7 @@ function ObjectivesAndResults() {
                                     autoHighlight
                                     loading={loadingBusinessLines}
                                     id="businessLine_id"
-                                    options={bussinesLines}
+                                    options={businessLines}
                                     inputValue={businessLineValue}
                                     getOptionLabel={(option) => option.name}
                                     value={selectedBusinessLine}

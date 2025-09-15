@@ -13,9 +13,9 @@ import Swal from "sweetalert2";
 import Autocomplete from "../../components/Forms/Autocomplete";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
 import ShareTypesService from "../../services/shareTypesService";
-import BusinessLineService from "../../services/businessLineService";
 import ConceptService from "../../services/conceptService";
 import { useCenters } from "../../hooks/useCenters";
+import { useBusinessLines } from "../../hooks/useBusinessLines";
 
 function SupplierForm(){
     //Hooks
@@ -23,6 +23,7 @@ function SupplierForm(){
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
     const { centers, loadingCenters } = useCenters();
+    const { businessLines, loadingBusinessLines } = useBusinessLines();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
@@ -39,8 +40,6 @@ function SupplierForm(){
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
     //Estados para las lineas de negocio
-    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
-    const [businessLines, setBusinessLines] = useState([]);
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
@@ -127,7 +126,6 @@ function SupplierForm(){
     //Al cargar el componente, obtiene los centros
     useEffect(() => {
         getShareTypes();
-        getBusinessLines();
         getConcepts();
     }, [token]);
 
@@ -158,18 +156,6 @@ function SupplierForm(){
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
             setLoadingShareTypes(false);
-        }
-    }
-
-    const getBusinessLines = async () => {
-        try {
-            setLoadingBusinessLines(true);
-            const response = await BusinessLineService.getAll(token);
-            setBusinessLines(response.data);
-            setLoadingBusinessLines(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar las líneas de negocio");
-            setLoadingBusinessLines(false);
         }
     }
 
