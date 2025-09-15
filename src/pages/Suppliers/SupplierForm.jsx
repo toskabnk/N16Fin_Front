@@ -16,6 +16,7 @@ import ShareTypesService from "../../services/shareTypesService";
 import { useCenters } from "../../hooks/useCenters";
 import { useBusinessLines } from "../../hooks/useBusinessLines";
 import { useConcepts } from "../../hooks/useConcepts";
+import { useShareTypes } from "../../hooks/useShareTypes";
 
 function SupplierForm(){
     //Hooks
@@ -25,6 +26,7 @@ function SupplierForm(){
     const { centers, loadingCenters } = useCenters();
     const { businessLines, loadingBusinessLines } = useBusinessLines();
     const { concepts, loadingConcepts } = useConcepts();
+    const { shareTypes, loadingShareTypes } = useShareTypes();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
@@ -44,8 +46,6 @@ function SupplierForm(){
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
-    const [loadingShareTypes, setLoadingShareTypes] = useState(true);
-    const [shareTypes, setShareTypes] = useState([]);
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
     //Estados para los conceptos
@@ -122,11 +122,6 @@ function SupplierForm(){
         }
     }, [supplierID, id]);
 
-    //Al cargar el componente, obtiene los centros
-    useEffect(() => {
-        getShareTypes();
-    }, [token]);
-
     //Al cargar los centros, los mete en la lista de centros izquierda o derecha segun los centros seleccionados de la factura
     useEffect(() => {
         if (centers.length > 0) {
@@ -144,18 +139,6 @@ function SupplierForm(){
             setRight(rightCenters);
         }
     }, [centers, formik.values.centers]);
-
-    const getShareTypes = async () => {
-        try {
-            setLoadingShareTypes(true);
-            const response = await ShareTypesService.getAll(token);
-            setShareTypes(response.data);
-            setLoadingShareTypes(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
-            setLoadingShareTypes(false);
-        }
-    }
 
     const handleDelete = async () => {
         setLoadingDelete(true);

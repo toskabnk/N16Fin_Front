@@ -8,7 +8,6 @@ import FormGrid from "../../components/FormGrid";
 import { Grid } from "@mui/system";
 import Autocomplete from "../../components/Forms/Autocomplete";
 import SupplierService from "../../services/supplierService";
-import ShareTypesService from "../../services/shareTypesService";
 import FormikTextField from "../../components/FormikTextField";
 import { FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
@@ -21,12 +20,14 @@ import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete"
 import { useCenters } from "../../hooks/useCenters";
 import { useBusinessLines } from "../../hooks/useBusinessLines";
 import { useConcepts } from "../../hooks/useConcepts";
+import { useShareTypes } from "../../hooks/useShareTypes";
 
 function InvoiceForm() {
     //Hooks
     const { centers, loadingCenters } = useCenters();
     const { businessLines, loadingBusinessLines } = useBusinessLines();
     const { concepts, loadingConcepts } = useConcepts();
+    const { shareTypes, loadingShareTypes } = useShareTypes();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -52,8 +53,6 @@ function InvoiceForm() {
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
-    const [loadingShareTypes, setLoadingShareTypes] = useState(true);
-    const [shareTypes, setShareTypes] = useState([]);
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
     //Estados para los conceptos
@@ -151,7 +150,6 @@ function InvoiceForm() {
     //Carga los proveedores al cargar el componente
     useEffect(() => {
         getSuppliers();
-        getShareTypes();
         console.log("Desde:", searchParams.get("from"));
     }, [token]);
 
@@ -233,18 +231,6 @@ function InvoiceForm() {
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los proveedores");
             setLoadingSuppliers(false);
-        }
-    }
-
-    const getShareTypes = async () => {
-        try {
-            setLoadingShareTypes(true);
-            const response = await ShareTypesService.getAll(token);
-            setShareTypes(response.data);
-            setLoadingShareTypes(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
-            setLoadingShareTypes(false);
         }
     }
 
