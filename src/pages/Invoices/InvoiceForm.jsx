@@ -28,7 +28,7 @@ function InvoiceForm() {
     const { businessLines, loadingBusinessLines } = useBusinessLines();
     const { concepts, loadingConcepts } = useConcepts();
     const { shareTypes, loadingShareTypes } = useShareTypes();
-    const { suppliers, setSuppliers } = useSuppliers();
+    const { suppliers, loadingSuppliers } = useSuppliers();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -212,6 +212,11 @@ function InvoiceForm() {
         }
     }, [centers, formik.values.centers]);
 
+    useEffect(() => {
+        if(searchParams.get("from") === "client-invoices") {
+            formik.setFieldValue("type", "out");
+        }
+    }, [searchParams]);
     //#endregion
 
     //#region Functions

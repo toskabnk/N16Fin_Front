@@ -259,6 +259,7 @@ function ClientInvoices() {
         name="Facturas Clientes"
         subname="Lista"
         url="/client-invoices"
+        searchParams="from=client-invoices"
         buttonName="Nueva Factura Cliente"
         loading={loading}
         noClick={true}
