@@ -9,20 +9,20 @@ import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import SupplierService from "../../services/supplierService";
 import FormikTextField from "../../components/FormikTextField";
-import CenterService from "../../services/centerService";
 import Swal from "sweetalert2";
 import Autocomplete from "../../components/Forms/Autocomplete";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
 import ShareTypesService from "../../services/shareTypesService";
 import BusinessLineService from "../../services/businessLineService";
 import ConceptService from "../../services/conceptService";
-
+import { useCenters } from "../../hooks/useCenters";
 
 function SupplierForm(){
     //Hooks
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers, loadingCenters } = useCenters();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
@@ -35,9 +35,6 @@ function SupplierForm(){
     const supplierID = location.state?.objectID?.id;
     //Token de usuario
     const token = useSelector((state) => state.user.token);
-    //Estados para los centros
-    const [loadingCenters, setLoadingCenters] = useState(true);
-    const [centers, setCenters] = useState([]);
     //Estados para la transfer list
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
@@ -129,7 +126,6 @@ function SupplierForm(){
 
     //Al cargar el componente, obtiene los centros
     useEffect(() => {
-        getCenters();
         getShareTypes();
         getBusinessLines();
         getConcepts();
@@ -152,19 +148,6 @@ function SupplierForm(){
             setRight(rightCenters);
         }
     }, [centers, formik.values.centers]);
-
-
-    const getCenters = async () => {
-        try {
-            setLoadingCenters(true);
-            const response = await CenterService.getAll(token);
-            setCenters(response.data);
-            setLoadingCenters(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los centros");
-            setLoadingCenters(false);
-        }
-    }
 
     const getShareTypes = async () => {
         try {

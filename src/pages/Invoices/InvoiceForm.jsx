@@ -21,9 +21,11 @@ import Swal from "sweetalert2";
 import BusinessLineService from "../../services/businessLineService";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
 import ConceptService from "../../services/conceptService";
+import { useCenters } from "../../hooks/useCenters";
 
 function InvoiceForm() {
     //Hooks
+    const { centers, loadingCenters } = useCenters();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -60,9 +62,6 @@ function InvoiceForm() {
     const [concepts, setConcepts] = useState([]);
     const [conceptValue, setConceptValue] = useState('');
     const [selectedConcept, setSelectedConcept] = useState(null);
-    //Estados para los centros
-    const [loadingCenters, setLoadingCenters] = useState(true);
-    const [centers, setCenters] = useState([]);
     //Estado para el mes seleccionado
     const [selectedMonth, setMonthSelected] = useState(null);
     const [selectedMonthValue, setSelectedMonthValue] = useState('');
@@ -156,7 +155,6 @@ function InvoiceForm() {
     useEffect(() => {
         getSuppliers();
         getShareTypes();
-        getCenters();
         getBusinessLines();
         getConcepts();
         console.log("Desde:", searchParams.get("from"));
@@ -252,18 +250,6 @@ function InvoiceForm() {
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
             setLoadingShareTypes(false);
-        }
-    }
-
-    const getCenters = async () => {
-        try {
-            setLoadingCenters(true);
-            const response = await CenterService.getAll(token);
-            setCenters(response.data);
-            setLoadingCenters(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los centros");
-            setLoadingCenters(false);
         }
     }
 

@@ -5,14 +5,15 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import BusinessLineService from "../../services/businessLineService";
-import CenterService from "../../services/centerService";
 import ObjetivesService from "../../services/objetivesService";
 import SaveIcon from '@mui/icons-material/Save';
+import { useCenters } from "../../hooks/useCenters";
 
 function ObjectivesAndResults() {
     //#region States and Variables
     //Hooks
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers, loadingCenters } = useCenters();
     //Token de usuario
     const token = useSelector((state) => state.user.token);
     //Year
@@ -32,8 +33,6 @@ function ObjectivesAndResults() {
     const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
 
     //Centers
-    const [centers, setCenters] = useState([]);
-    const [loadingCenters, setLoadingCenters] = useState(true);
     const [selectedCenter, setSelectedCenter] = useState(null);
     const [centerValue, setCenterValue] = useState('');
 
@@ -105,7 +104,6 @@ function ObjectivesAndResults() {
     //Get the business lines and centers when the component mounts
     useEffect(() => {
         getBussinesLines();
-        getCenters();
     }, [token]);
 
     //Get the objectives and results when the business line or center changes
@@ -149,18 +147,6 @@ function ObjectivesAndResults() {
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar las lineas de negocio");
             setLoadingBusinessLines(false);
-        }
-    }
-
-    const getCenters = async () => {
-        try {
-            setLoadingCenters(true);
-            const response = await CenterService.getAll(token);
-            setCenters(response.data);
-            setLoadingCenters(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los centros");
-            setLoadingCenters(false);
         }
     }
 

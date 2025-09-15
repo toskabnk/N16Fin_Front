@@ -11,11 +11,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import CenterService from "../../services/centerService";
+import { useCenters } from "../../hooks/useCenters";
 
 function Invoices() {
     //Hooks
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers } = useCenters();
     const navigate = useNavigate();
     //Token
     const token = useSelector((state) => state.user.token);
@@ -27,8 +28,6 @@ function Invoices() {
     const [filterModel, setFilterModel] = useState({ items: [] });
     //Row data for the table
     const [rows, setRows] = useState([]);
-    //Centers states
-    const [centers, setCenters] = useState([]);
     //Columns for the table
     const columns = useMemo(() =>[
         { field: 'odoo_invoice_id', headerName: 'ID', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
@@ -109,7 +108,6 @@ function Invoices() {
     //Al cargar la pagina carga las companias
     useEffect(() => {
         if(token){
-            getCenters();
             getInvoices();
         }
     }, [token]);
@@ -141,19 +139,6 @@ function Invoices() {
         } catch (error) {
             console.error(error);
             setLoading(false);
-            errorSnackbar(error.message);
-        }
-    };
-
-    //Obtiene los centros de la BD
-    const getCenters = async () => {
-        try {
-            const response = await CenterService.getAll(token);
-
-            setCenters(response.data);
-            console.log("Centers loaded:", response.data);
-        } catch (error) {
-            console.error(error);
             errorSnackbar(error.message);
         }
     };

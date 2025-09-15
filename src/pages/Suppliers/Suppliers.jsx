@@ -9,18 +9,16 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import EditIcon from '@mui/icons-material/Edit';
 import Swal from "sweetalert2";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CenterService from "../../services/centerService";
-
+import { useCenters } from "../../hooks/useCenters";
 
 function Suppliers() {
     //Hooks
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers } = useCenters();
     const navigate = useNavigate();
     const token = useSelector((state) => state.user.token);
     //Row data for the table
     const [rows, setRows] = useState([]);
-    //Centers states
-    const [centers, setCenters] = useState([]);
 
     const columns = useMemo(() =>[
         { field: 'name', headerName: 'Nombre', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
@@ -67,7 +65,6 @@ function Suppliers() {
     //Al cargar la pagina carga las companias
     useEffect(() => {
         if(token){
-            getCenters();
             getSuppliers();
         }
     }, [token]);
@@ -86,19 +83,6 @@ function Suppliers() {
             errorSnackbar(error.message);
         }
     };
-
-        //Obtiene los centros de la BD
-        const getCenters = async () => {
-            try {
-                const response = await CenterService.getAll(token);
-    
-                setCenters(response.data);
-                console.log("Centers loaded:", response.data);
-            } catch (error) {
-                console.error(error);
-                errorSnackbar(error.message);
-            }
-        };
 
     const updateInvoices = React.useCallback(
         (id) => async () => {

@@ -4,10 +4,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGridApiRef } from "@mui/x-data-grid";
 import CenterCostService from "../../services/CenterCostService";
-import CenterService from "../../services/centerService";
 import yearService from "../../services/yearService";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import HeaderPage from "../../components/PagesComponents/HeaderPage";
+import { useCenters } from "../../hooks/useCenters";
 
 const meses = ["sep", "oct", "nov", "dic", "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago"];
 const cuatrimestres = [
@@ -136,7 +136,7 @@ const buildResumenes = (row) => {
 
 function Costs() {
     const token = useSelector((state) => state.user.token);
-    const [centers, setCenters] = useState([]);
+    const { centers } = useCenters();
     const [selectedCenter, setSelectedCenter] = useState("");
     const [selectedYear, setSelectedYear] = useState("");
     const [rows, setRows] = useState([]);
@@ -176,10 +176,7 @@ function Costs() {
     // Selectores
     useEffect(() => {
         if (!token) return;
-        CenterService.getAll(token)
-            .then((resp) => setCenters(resp.data))
-            .catch((err) => errorSnackbar(err.message));
-
+        
         yearService
             .getCurrentYear(token)
             .then((year) => setSelectedYear(year.data.year || ""))
