@@ -18,14 +18,15 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
-import ConceptService from "../../services/conceptService";
 import { useCenters } from "../../hooks/useCenters";
 import { useBusinessLines } from "../../hooks/useBusinessLines";
+import { useConcepts } from "../../hooks/useConcepts";
 
 function InvoiceForm() {
     //Hooks
     const { centers, loadingCenters } = useCenters();
     const { businessLines, loadingBusinessLines } = useBusinessLines();
+    const { concepts, loadingConcepts } = useConcepts();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -56,8 +57,6 @@ function InvoiceForm() {
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
     //Estados para los conceptos
-    const [loadingConcepts, setLoadingConcepts] = useState(true);
-    const [concepts, setConcepts] = useState([]);
     const [conceptValue, setConceptValue] = useState('');
     const [selectedConcept, setSelectedConcept] = useState(null);
     //Estado para el mes seleccionado
@@ -153,7 +152,6 @@ function InvoiceForm() {
     useEffect(() => {
         getSuppliers();
         getShareTypes();
-        getConcepts();
         console.log("Desde:", searchParams.get("from"));
     }, [token]);
 
@@ -247,18 +245,6 @@ function InvoiceForm() {
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
             setLoadingShareTypes(false);
-        }
-    }
-
-    const getConcepts = async () => {
-        try {
-            setLoadingConcepts(true);
-            const response = await ConceptService.getAll(token);
-            setConcepts(response.data);
-            setLoadingConcepts(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los conceptos");
-            setLoadingConcepts(false);
         }
     }
 
