@@ -13,9 +13,9 @@ import Swal from "sweetalert2";
 import Autocomplete from "../../components/Forms/Autocomplete";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
 import ShareTypesService from "../../services/shareTypesService";
-import ConceptService from "../../services/conceptService";
 import { useCenters } from "../../hooks/useCenters";
 import { useBusinessLines } from "../../hooks/useBusinessLines";
+import { useConcepts } from "../../hooks/useConcepts";
 
 function SupplierForm(){
     //Hooks
@@ -24,6 +24,7 @@ function SupplierForm(){
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
     const { centers, loadingCenters } = useCenters();
     const { businessLines, loadingBusinessLines } = useBusinessLines();
+    const { concepts, loadingConcepts } = useConcepts();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
@@ -48,8 +49,6 @@ function SupplierForm(){
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
     //Estados para los conceptos
-    const [loadingConcepts, setLoadingConcepts] = useState(true);
-    const [concepts, setConcepts] = useState([]);
     const [conceptValue, setConceptValue] = useState('');
     const [selectedConcept, setSelectedConcept] = useState(null);
 
@@ -126,7 +125,6 @@ function SupplierForm(){
     //Al cargar el componente, obtiene los centros
     useEffect(() => {
         getShareTypes();
-        getConcepts();
     }, [token]);
 
     //Al cargar los centros, los mete en la lista de centros izquierda o derecha segun los centros seleccionados de la factura
@@ -156,18 +154,6 @@ function SupplierForm(){
         } catch (error) {
             errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
             setLoadingShareTypes(false);
-        }
-    }
-
-    const getConcepts = async () => {
-        try {
-            setLoadingConcepts(true);
-            const response = await ConceptService.getAll(token);
-            setConcepts(response.data);
-            setLoadingConcepts(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los conceptos");
-            setLoadingConcepts(false);
         }
     }
 
