@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGridApiRef } from "@mui/x-data-grid";
 import CenterCostService from "../../services/CenterCostService";
-import yearService from "../../services/yearService";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import SaveIcon from '@mui/icons-material/Save';
 import { useCenters } from "../../hooks/useCenters";
@@ -81,6 +80,39 @@ const columns = [
         cellClassName: "resumen-col",
     })),
 ];
+const columnGroupingModel = [
+    {
+        groupId: 'concepto',
+        headerName: 'Concepto',
+        children: [{ field: 'nombre' }],
+    },
+    ...meses.map((mes) => ({
+        groupId: mes,
+        headerName: months.find((m) => m.key === mes)?.label ?? mes.toUpperCase(),
+        children: campos.map((campo) => ({
+            field: `${mes}_${campo}`,
+            headerName: `${mes.toUpperCase()} ${campo.toUpperCase()}`,
+        })),
+    })),
+    ...cuatrimestres.map((q) => ({
+        groupId: q.key,
+        headerName: q.label,    
+        children: campos.map((campo) => ({
+            field: `${q.key}_${campo}`,
+            headerName: `${q.label} ${campo.toUpperCase()}`,
+        })),
+    })),    
+
+    {
+        groupId: 'anual',
+        headerName: 'Anual',
+        children: campos.map((campo) => ({
+            field: `anual_${campo}`,
+            headerName: `ANUAL ${campo.toUpperCase()}`,
+        })),
+    },
+];
+
 
 // === helpers numéricos y cálculos ===
 const toNumOrNull = (v) => {
@@ -147,7 +179,7 @@ function Costs() {
     const [isEditing, setIsEditing] = useState(false);
     //datagrid
     const handleRowClick = (params) => {
-        console.log(params.row);
+        //console.log(params.row);
         navigate(`${url}/${params.id}`, { state: { objectID: params.row } });
     };
     useEffect(() => {
@@ -188,17 +220,6 @@ function Costs() {
         if (!rows?.length) return setDirty(false);
         setDirty(hashRows(rows) !== originalHash);
     }, [rows, originalHash]);
-
-    // Selectores
-    useEffect(() => {
-        if (!token) return;
-        
-        yearService
-            .getCurrentYear(token)
-            .then((year) => setSelectedYear(year.data.year || ""))
-            .catch((err) => errorSnackbar(err.message));
-    }, [token, errorSnackbar]);
-
 
     useEffect(() => {
         if (!year) return;
@@ -446,6 +467,7 @@ function Costs() {
                                 rows={rows}
                                 columns={columns}
                                 apiRef={apiRef}
+                                columnGroupingModel={columnGroupingModel}
                                 autosizeAfterMount
                                 onRowEditStart={() => setIsEditing(true)}
                                 onRowEditStop={() => setIsEditing(false)}
@@ -475,24 +497,6 @@ function Costs() {
                                     height: "100%",
                                 }}
                             />
-                            {/* OLD CALL
-                            <ListDataGrid
-                                rows={rows}
-                                columns={columns}
-                                density="comfortable"
-                                name="Gastos explotación"
-                                subname="Lista"
-                                url="/costs"
-                                createButton={false}
-                                loading={loading}
-                                noClick
-                                apiRef={apiRef}
-                                editable
-                                handleRowUpdate={handleRowUpdate}
-                                fillParent
-                                showHeader={false}
-                            />
-                            */}
                         </Box>
                     </Grid>
                 </Grid>
