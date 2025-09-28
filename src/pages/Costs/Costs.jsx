@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, InputLabel, Select, MenuItem, TextField, Typography, Link, Paper, Grid } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, Select, MenuItem, TextField, Typography, Link, Paper, Grid, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid"
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -96,12 +96,12 @@ const columnGroupingModel = [
     })),
     ...cuatrimestres.map((q) => ({
         groupId: q.key,
-        headerName: q.label,    
+        headerName: q.label,
         children: campos.map((campo) => ({
             field: `${q.key}_${campo}`,
             headerName: `${q.label} ${campo.toUpperCase()}`,
         })),
-    })),    
+    })),
 
     {
         groupId: 'anual',
@@ -177,11 +177,52 @@ function Costs() {
     const apiRef = useGridApiRef();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
     const [isEditing, setIsEditing] = useState(false);
+    // Quarter / Anual filter state
+    const [quarterFilter, setQuarterFilter] = useState({ q1: true, q2: true, q3: true, anual: true });
     //datagrid
     const handleRowClick = (params) => {
         //console.log(params.row);
         navigate(`${url}/${params.id}`, { state: { objectID: params.row } });
     };
+
+    const toggleQuarter = (key) => {
+        setQuarterFilter((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    // Build filtered columns and grouping based on quarterFilter
+    const { filteredColumns, filteredColumnGroupingModel } = useMemo(() => {
+        const allowedFields = new Set(['nombre']);
+        const allowedGroupIds = new Set(['concepto']);
+
+        // If a quarter is selected, include its months and its summary fields
+        cuatrimestres.forEach((q) => {
+            if (quarterFilter[q.key]) {
+                allowedGroupIds.add(q.key);
+                campos.forEach((c) => allowedFields.add(`${q.key}_${c}`));
+                q.meses.forEach((mes) => {
+                    allowedGroupIds.add(mes);
+                    campos.forEach((c) => allowedFields.add(`${mes}_${c}`));
+                });
+            }
+        });
+
+        if (quarterFilter.anual) {
+            allowedGroupIds.add('anual');
+            campos.forEach((c) => allowedFields.add(`anual_${c}`));
+        }
+
+        const filteredCols = columns.filter((col) => allowedFields.has(col.field));
+
+        // Filter grouping model children to only allowed fields, and drop empty groups (except concepto)
+        const filteredGrouping = columnGroupingModel
+            .map((group) => {
+                const children = (group.children || []).filter((child) => allowedFields.has(child.field));
+                return { ...group, children };
+            })
+            .filter((g) => (g.groupId === 'concepto') || (g.children && g.children.length > 0));
+
+        return { filteredColumns: filteredCols, filteredColumnGroupingModel: filteredGrouping };
+    }, [quarterFilter]);
     useEffect(() => {
         if (isEditing) return;
         requestAnimationFrame(() => {
@@ -463,11 +504,21 @@ function Costs() {
                             gap={4}
                             p={2}
                         >
+                            {/* Quarter / Annual filters */}
+                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, ml: 2 }}>
+                                <FormGroup row>
+                                    <FormControlLabel control={<Checkbox checked={quarterFilter.q1} onChange={() => toggleQuarter('q1')} />} label="1Q (Sep-Dic)" />
+                                    <FormControlLabel control={<Checkbox checked={quarterFilter.q2} onChange={() => toggleQuarter('q2')} />} label="2Q (Ene-Abr)" />
+                                    <FormControlLabel control={<Checkbox checked={quarterFilter.q3} onChange={() => toggleQuarter('q3')} />} label="3Q (May-Ago)" />
+                                    <FormControlLabel control={<Checkbox checked={quarterFilter.anual} onChange={() => toggleQuarter('anual')} />} label="Anual" />
+                                </FormGroup>
+                            </Box>
+
                             <DataGrid
                                 rows={rows}
-                                columns={columns}
+                                columns={filteredColumns}
                                 apiRef={apiRef}
-                                columnGroupingModel={columnGroupingModel}
+                                columnGroupingModel={filteredColumnGroupingModel}
                                 autosizeAfterMount
                                 onRowEditStart={() => setIsEditing(true)}
                                 onRowEditStop={() => setIsEditing(false)}
