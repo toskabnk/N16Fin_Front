@@ -19,6 +19,8 @@ function ObjectivesAndResults() {
     const token = useSelector((state) => state.user.token);
     //Year
     const year = useSelector((state) => state.data.year);
+    //Response data
+    const [responseData, setResponseData] = useState([]);
 
     const apiRef = useGridApiRef();
     const [rowInEdit, setRowInEdit] = useState(null);
@@ -142,7 +144,10 @@ function ObjectivesAndResults() {
                 year: year
             }
             const response = await ObjetivesService.getObjetives(token, body);
-
+            console.log("Response Objectives and Results:", response);
+            
+            setResponseData(response.data.data);
+            //If the business line is presencial
             if(selectedBusinessLine.name === 'Presencial'){
                 //If center is not selected, show the results of all centers combined
                 if (!selectedCenter) {
@@ -345,12 +350,13 @@ function ObjectivesAndResults() {
             }
 
             console.log("Data to save:", body);
+            console.log("Response data:", responseData);
 
             //Check if the data exists
             if(notFound) {
                 await ObjetivesService.create(token, body);
             } else {
-                await ObjetivesService.update(token, body);
+                await ObjetivesService.update(token, responseData[0].id, body);
             }
             successSnackbar("Modificaciones guardadas correctamente");
             setEnableSave(false);
