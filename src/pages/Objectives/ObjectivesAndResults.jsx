@@ -68,7 +68,7 @@ function ObjectivesAndResults() {
     const getActualObjetives = (value, row) => {
         const realAnterior = row.realAnterior || 0;
         const projected_growth = row.projectedGrowth || 1;
-        return (realAnterior * projected_growth).toFixed(2);
+        return (realAnterior * projected_growth).toLocaleString('es-ES');
     };
 
     const getDeviationObjectives = (value, row) => {
