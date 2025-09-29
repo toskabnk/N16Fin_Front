@@ -4,19 +4,23 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
-import BusinessLineService from "../../services/businessLineService";
-import CenterService from "../../services/centerService";
 import ObjetivesService from "../../services/objetivesService";
 import SaveIcon from '@mui/icons-material/Save';
+import { useCenters } from "../../hooks/useCenters";
+import { useBusinessLines } from "../../hooks/useBusinessLines";
 
 function ObjectivesAndResults() {
     //#region States and Variables
     //Hooks
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers, loadingCenters } = useCenters();
+    const { businessLines, loadingBusinessLines } = useBusinessLines();
     //Token de usuario
     const token = useSelector((state) => state.user.token);
     //Year
     const year = useSelector((state) => state.data.year);
+    //Response data
+    const [responseData, setResponseData] = useState([]);
 
     const apiRef = useGridApiRef();
     const [rowInEdit, setRowInEdit] = useState(null);
@@ -26,14 +30,10 @@ function ObjectivesAndResults() {
     const [columns, setColumns] = useState([]);
 
     //Business Lines
-    const [bussinesLines, setBussinesLines] = useState([]);
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
-    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
 
     //Centers
-    const [centers, setCenters] = useState([]);
-    const [loadingCenters, setLoadingCenters] = useState(true);
     const [selectedCenter, setSelectedCenter] = useState(null);
     const [centerValue, setCenterValue] = useState('');
 
@@ -102,11 +102,6 @@ function ObjectivesAndResults() {
     //#endregion
 
     //#region UseEffects
-    //Get the business lines and centers when the component mounts
-    useEffect(() => {
-        getBussinesLines();
-        getCenters();
-    }, [token]);
 
     //Get the objectives and results when the business line or center changes
     useEffect(() => {
@@ -140,30 +135,6 @@ function ObjectivesAndResults() {
     }, [rows]);
     //#endregion
 
-    const getBussinesLines = async () => {
-        try {
-            setLoadingBusinessLines(true);
-            const response = await BusinessLineService.getAll(token);
-            setBussinesLines(response.data);
-            setLoadingBusinessLines(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar las lineas de negocio");
-            setLoadingBusinessLines(false);
-        }
-    }
-
-    const getCenters = async () => {
-        try {
-            setLoadingCenters(true);
-            const response = await CenterService.getAll(token);
-            setCenters(response.data);
-            setLoadingCenters(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los centros");
-            setLoadingCenters(false);
-        }
-    }
-
     const getObjectivesAndResults = async () => {
         try {
             setLoading(true);
@@ -173,7 +144,10 @@ function ObjectivesAndResults() {
                 year: year
             }
             const response = await ObjetivesService.getObjetives(token, body);
-
+            console.log("Response Objectives and Results:", response);
+            
+            setResponseData(response.data.data);
+            //If the business line is presencial
             if(selectedBusinessLine.name === 'Presencial'){
                 //If center is not selected, show the results of all centers combined
                 if (!selectedCenter) {
@@ -376,12 +350,13 @@ function ObjectivesAndResults() {
             }
 
             console.log("Data to save:", body);
+            console.log("Response data:", responseData);
 
             //Check if the data exists
             if(notFound) {
                 await ObjetivesService.create(token, body);
             } else {
-                await ObjetivesService.update(token, body);
+                await ObjetivesService.update(token, responseData[0].id, body);
             }
             successSnackbar("Modificaciones guardadas correctamente");
             setEnableSave(false);
@@ -487,7 +462,7 @@ function ObjectivesAndResults() {
                                     autoHighlight
                                     loading={loadingBusinessLines}
                                     id="businessLine_id"
-                                    options={bussinesLines}
+                                    options={businessLines}
                                     inputValue={businessLineValue}
                                     getOptionLabel={(option) => option.name}
                                     value={selectedBusinessLine}

@@ -3,11 +3,11 @@ import HeaderPage from "../../components/PagesComponents/HeaderPage";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSnackbarContext } from "../../providers/SnackbarWrapperProvider";
 import { useSelector } from "react-redux";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SaveIcon from '@mui/icons-material/Save';
 import UserService from "../../services/userService";
 import FormikTextField from "../../components/FormikTextField";
-import { Formik, useFormik } from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 
 function Profile() {

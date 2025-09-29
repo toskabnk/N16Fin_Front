@@ -9,20 +9,24 @@ import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import SupplierService from "../../services/supplierService";
 import FormikTextField from "../../components/FormikTextField";
-import CenterService from "../../services/centerService";
 import Swal from "sweetalert2";
 import Autocomplete from "../../components/Forms/Autocomplete";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
 import ShareTypesService from "../../services/shareTypesService";
-import BusinessLineService from "../../services/businessLineService";
-import ConceptService from "../../services/conceptService";
-
+import { useCenters } from "../../hooks/useCenters";
+import { useBusinessLines } from "../../hooks/useBusinessLines";
+import { useConcepts } from "../../hooks/useConcepts";
+import { useShareTypes } from "../../hooks/useShareTypes";
 
 function SupplierForm(){
     //Hooks
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers, loadingCenters } = useCenters();
+    const { businessLines, loadingBusinessLines } = useBusinessLines();
+    const { concepts, loadingConcepts } = useConcepts();
+    const { shareTypes, loadingShareTypes } = useShareTypes();
     //Loading para el LoadingButton
     const [loading, setLoading] = useState(false);
     //Loading para el botón de borrar
@@ -35,25 +39,16 @@ function SupplierForm(){
     const supplierID = location.state?.objectID?.id;
     //Token de usuario
     const token = useSelector((state) => state.user.token);
-    //Estados para los centros
-    const [loadingCenters, setLoadingCenters] = useState(true);
-    const [centers, setCenters] = useState([]);
     //Estados para la transfer list
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
     //Estados para las lineas de negocio
-    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
-    const [businessLines, setBusinessLines] = useState([]);
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
-    const [loadingShareTypes, setLoadingShareTypes] = useState(true);
-    const [shareTypes, setShareTypes] = useState([]);
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
     //Estados para los conceptos
-    const [loadingConcepts, setLoadingConcepts] = useState(true);
-    const [concepts, setConcepts] = useState([]);
     const [conceptValue, setConceptValue] = useState('');
     const [selectedConcept, setSelectedConcept] = useState(null);
 
@@ -127,14 +122,6 @@ function SupplierForm(){
         }
     }, [supplierID, id]);
 
-    //Al cargar el componente, obtiene los centros
-    useEffect(() => {
-        getCenters();
-        getShareTypes();
-        getBusinessLines();
-        getConcepts();
-    }, [token]);
-
     //Al cargar los centros, los mete en la lista de centros izquierda o derecha segun los centros seleccionados de la factura
     useEffect(() => {
         if (centers.length > 0) {
@@ -152,55 +139,6 @@ function SupplierForm(){
             setRight(rightCenters);
         }
     }, [centers, formik.values.centers]);
-
-
-    const getCenters = async () => {
-        try {
-            setLoadingCenters(true);
-            const response = await CenterService.getAll(token);
-            setCenters(response.data);
-            setLoadingCenters(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los centros");
-            setLoadingCenters(false);
-        }
-    }
-
-    const getShareTypes = async () => {
-        try {
-            setLoadingShareTypes(true);
-            const response = await ShareTypesService.getAll(token);
-            setShareTypes(response.data);
-            setLoadingShareTypes(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
-            setLoadingShareTypes(false);
-        }
-    }
-
-    const getBusinessLines = async () => {
-        try {
-            setLoadingBusinessLines(true);
-            const response = await BusinessLineService.getAll(token);
-            setBusinessLines(response.data);
-            setLoadingBusinessLines(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar las líneas de negocio");
-            setLoadingBusinessLines(false);
-        }
-    }
-
-    const getConcepts = async () => {
-        try {
-            setLoadingConcepts(true);
-            const response = await ConceptService.getAll(token);
-            setConcepts(response.data);
-            setLoadingConcepts(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los conceptos");
-            setLoadingConcepts(false);
-        }
-    }
 
     const handleDelete = async () => {
         setLoadingDelete(true);

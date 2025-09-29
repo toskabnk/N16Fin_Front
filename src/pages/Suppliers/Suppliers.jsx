@@ -9,19 +9,18 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import EditIcon from '@mui/icons-material/Edit';
 import Swal from "sweetalert2";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CenterService from "../../services/centerService";
-
+import { useCenters } from "../../hooks/useCenters";
+import { useSuppliers } from "../../hooks/useSupliers";
 
 function Suppliers() {
     //Hooks
-    const { errorSnackbar, successSnackbar } = useSnackbarContext();
+    const { centers } = useCenters();
+    const { suppliers, loadingSuppliers } = useSuppliers();
     const navigate = useNavigate();
-    const token = useSelector((state) => state.user.token);
+    //API ref
+    const apiRef = useGridApiRef();
+    
     //Row data for the table
-    const [rows, setRows] = useState([]);
-    //Centers states
-    const [centers, setCenters] = useState([]);
-
     const columns = useMemo(() =>[
         { field: 'name', headerName: 'Nombre', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'type', headerName: 'Tipo', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
@@ -58,47 +57,6 @@ function Suppliers() {
             ],
         },
     ], [centers]);
-
-    //Loading state
-    const [loading, setLoading] = useState(true);
-    //API ref
-    const apiRef = useGridApiRef();
-
-    //Al cargar la pagina carga las companias
-    useEffect(() => {
-        if(token){
-            getCenters();
-            getSuppliers();
-        }
-    }, [token]);
-
-    //Obtiene los proveedores de la BD
-    const getSuppliers = async () => {
-        try {
-            const response = await SupplierService.getAll(token);
-
-            setRows(response.data);
-            setLoading(false);
-
-        } catch (error) {
-            console.error(error);
-            setLoading(false);
-            errorSnackbar(error.message);
-        }
-    };
-
-        //Obtiene los centros de la BD
-        const getCenters = async () => {
-            try {
-                const response = await CenterService.getAll(token);
-    
-                setCenters(response.data);
-                console.log("Centers loaded:", response.data);
-            } catch (error) {
-                console.error(error);
-                errorSnackbar(error.message);
-            }
-        };
 
     const updateInvoices = React.useCallback(
         (id) => async () => {
@@ -156,13 +114,13 @@ function Suppliers() {
 
   return (
     <ListDataGrid
-    rows={rows}
+    rows={suppliers}
     columns={columns}
     name="Proveedores"
     subname="Lista"
     url="/suppliers"
     buttonName="Nuevo Proveedor"
-    loading={loading}
+    loading={loadingSuppliers}
     noClick={true}
 
 />

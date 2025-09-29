@@ -50,6 +50,7 @@ const Routes = () => {
                         <Route path='/concepts' element={<Concepts/>} />
                         <Route path='/concepts/:id' element={<ConceptForm/>} />
                         <Route path="/client-invoices" element={<ClientInvoices/>} />
+                        <Route path="/client-invoices/:id" element={<InvoiceForm/>} />
                         <Route path="/" element={<Home/>} />
                         <Route path="/profile" element={<Profile/>} />
                         <Route path="/costs" element={<Costs/>} />

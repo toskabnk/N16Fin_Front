@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid"
 import { Link, useNavigate } from "react-router-dom";
 import HeaderPage from "./PagesComponents/HeaderPage";
 
-const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true, filterComponent = [], sort = [], editable = false, handleRowUpdate, handleRowUpdateError, apiRef = null, buttonFunction = null, filter = false, filterModel, setFilterModel, initialState = null, fillParent = false, showHeader = true }) => {
+const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, loading = false, noClick = false, createButton = true, filterComponent = [], sort = [], editable = false, handleRowUpdate, handleRowUpdateError, apiRef = null, buttonFunction = null, filter = false, filterModel, setFilterModel, initialState = null, fillParent = false, showHeader = true, searchParams = null }) => {
   //Hooks
   const navigate = useNavigate();
 
@@ -19,7 +19,11 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
     if (buttonFunction) {
       buttonFunction();
     } else {
-      navigate(`${url}/new`);
+      if (searchParams) {
+        navigate(`${url}/new?${searchParams}`);
+      } else {
+        navigate(`${url}/new`);
+      }
     }
   };
 

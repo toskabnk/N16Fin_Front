@@ -7,23 +7,28 @@ import * as Yup from "yup";
 import FormGrid from "../../components/FormGrid";
 import { Grid } from "@mui/system";
 import Autocomplete from "../../components/Forms/Autocomplete";
-import SupplierService from "../../services/supplierService";
-import ShareTypesService from "../../services/shareTypesService";
 import FormikTextField from "../../components/FormikTextField";
 import { FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
-import CenterService from "../../services/centerService";
 import TransferList from "../../components/TransferListComponent";
 import InvoiceService from "../../services/invoiceService";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
-import BusinessLineService from "../../services/businessLineService";
 import CreatableAutocomplete from "../../components/Forms/CreatableAutocomplete";
-import ConceptService from "../../services/conceptService";
+import { useCenters } from "../../hooks/useCenters";
+import { useBusinessLines } from "../../hooks/useBusinessLines";
+import { useConcepts } from "../../hooks/useConcepts";
+import { useShareTypes } from "../../hooks/useShareTypes";
+import { useSuppliers } from "../../hooks/useSupliers";
 
 function InvoiceForm() {
     //Hooks
+    const { centers, loadingCenters } = useCenters();
+    const { businessLines, loadingBusinessLines } = useBusinessLines();
+    const { concepts, loadingConcepts } = useConcepts();
+    const { shareTypes, loadingShareTypes } = useShareTypes();
+    const { suppliers, loadingSuppliers } = useSuppliers();
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -41,28 +46,17 @@ function InvoiceForm() {
     //Token de usuario
     const token = useSelector((state) => state.user.token);
     //Estados para los proveedores
-    const [loadingSuppliers, setLoadingSuppliers] = useState(true);
-    const [suppliers, setSuppliers] = useState([]);
     const [supplierValue, setSupplierValue] = useState('');
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     //Estados para las lineas de negocio
-    const [loadingBusinessLines, setLoadingBusinessLines] = useState(true);
-    const [businessLines, setBusinessLines] = useState([]);
     const [businessLineValue, setBusinessLineValue] = useState('');
     const [selectedBusinessLine, setSelectedBusinessLine] = useState(null);
     //Estados para los tipos de reparto
-    const [loadingShareTypes, setLoadingShareTypes] = useState(true);
-    const [shareTypes, setShareTypes] = useState([]);
     const [shareTypeValue, setShareTypeValue] = useState('');
     const [selectedShareType, setSelectedShareType] = useState(null);
     //Estados para los conceptos
-    const [loadingConcepts, setLoadingConcepts] = useState(true);
-    const [concepts, setConcepts] = useState([]);
     const [conceptValue, setConceptValue] = useState('');
     const [selectedConcept, setSelectedConcept] = useState(null);
-    //Estados para los centros
-    const [loadingCenters, setLoadingCenters] = useState(true);
-    const [centers, setCenters] = useState([]);
     //Estado para el mes seleccionado
     const [selectedMonth, setMonthSelected] = useState(null);
     const [selectedMonthValue, setSelectedMonthValue] = useState('');
@@ -152,16 +146,6 @@ function InvoiceForm() {
     //#endregion
 
     //#region useEffects
-    //Carga los proveedores al cargar el componente
-    useEffect(() => {
-        getSuppliers();
-        getShareTypes();
-        getCenters();
-        getBusinessLines();
-        getConcepts();
-        console.log("Desde:", searchParams.get("from"));
-    }, [token]);
-
     //Si hay uns factura en la ubicación, se carga los datos en el formulario
     useEffect(() => {
         if (id && location.state?.objectID) {
@@ -228,69 +212,14 @@ function InvoiceForm() {
         }
     }, [centers, formik.values.centers]);
 
+    useEffect(() => {
+        if(searchParams.get("from") === "client-invoices") {
+            formik.setFieldValue("type", "out");
+        }
+    }, [searchParams]);
     //#endregion
 
     //#region Functions
-    const getSuppliers = async () => {
-        try {
-            setLoadingSuppliers(true);
-            const response = await SupplierService.getAll(token);
-            setSuppliers(response.data);
-            setLoadingSuppliers(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los proveedores");
-            setLoadingSuppliers(false);
-        }
-    }
-
-    const getShareTypes = async () => {
-        try {
-            setLoadingShareTypes(true);
-            const response = await ShareTypesService.getAll(token);
-            setShareTypes(response.data);
-            setLoadingShareTypes(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los tipos de reparticiones");
-            setLoadingShareTypes(false);
-        }
-    }
-
-    const getCenters = async () => {
-        try {
-            setLoadingCenters(true);
-            const response = await CenterService.getAll(token);
-            setCenters(response.data);
-            setLoadingCenters(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los centros");
-            setLoadingCenters(false);
-        }
-    }
-
-    const getBusinessLines = async () => {
-        try {
-            setLoadingBusinessLines(true);
-            const response = await BusinessLineService.getAll(token);
-            setBusinessLines(response.data);
-            setLoadingBusinessLines(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar las líneas de negocio");
-            setLoadingBusinessLines(false);
-        }
-    }
-
-    const getConcepts = async () => {
-        try {
-            setLoadingConcepts(true);
-            const response = await ConceptService.getAll(token);
-            setConcepts(response.data);
-            setLoadingConcepts(false);
-        } catch (error) {
-            errorSnackbar(error.message, "Error al cargar los conceptos");
-            setLoadingConcepts(false);
-        }
-    }
-
     const handleDelete = async () => {  
         setLoadingDelete(true);
         Swal.fire({
