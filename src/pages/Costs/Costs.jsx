@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography, Link, Paper, Grid, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography, Link, Paper, Grid, Checkbox, FormGroup, FormControlLabel, Tooltip } from "@mui/material";
 import { DataGridPremium } from "@mui/x-data-grid-premium"
 import React, { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
@@ -26,11 +26,15 @@ function Costs() {
     const { rows, loading, dirty, costId, loadData, saveData, updateRow } = useCostsData();
     
     // Usar el hook para las columnas
-    const { transposedColumns, columnGroupingModel } = useDataGridColumns();
+    const { transposedColumns } = useDataGridColumns();
 
     const toggleQuarter = useCallback((key) => {
         setQuarterFilter((prev) => ({ ...prev, [key]: !prev[key] }));
     }, []);
+
+    // Button appearance logic
+    const isDisabled = !selectedCenter || !year || saving || loading || !dirty;
+    const buttonColor = costId ? (dirty ? 'warning' : 'primary') : (dirty ? 'success' : 'primary');
 
     // Auto-resize columns effect
     useEffect(() => {
@@ -99,26 +103,51 @@ function Costs() {
                             gap={4}
                             p={2}>
                             <Typography variant="h6">Gastos Explotacion</Typography>
-                            <Button
-                                variant="contained"
-                                color={dirty ? "warning" : "primary"}
-                                loadingPosition="start"
-                                loading={saving}
-                                startIcon={<SaveIcon />}
-                                disabled={
-                                    !selectedCenter || !year || saving || loading || !dirty
-                                }
-                                onClick={handleSave}>
-                                {saving
-                                    ? "Guardando..."
-                                    : costId
-                                        ? dirty
-                                            ? "Actualizar cambios"
-                                            : "Actualizar"
-                                        : dirty
-                                            ? "Crear"
-                                            : "Crear"}
-                            </Button>
+                            {isDisabled && selectedCenter ? (
+                                <Tooltip title="Introduce algún dato">
+                                    <span>
+                                        <Button
+                                            variant="contained"
+                                            color={buttonColor}
+                                            loadingPosition="start"
+                                            loading={saving}
+                                            startIcon={<SaveIcon />}
+                                            disabled={isDisabled}
+                                            onClick={handleSave}
+                                        >
+                                            {saving
+                                                ? "Guardando..."
+                                                : costId
+                                                    ? dirty
+                                                        ? "Actualizar"
+                                                        : "Actualizar"
+                                                    : dirty
+                                                        ? "Crear"
+                                                        : "Crear"}
+                                        </Button>
+                                    </span>
+                                </Tooltip>
+                            ) : (
+                                <Button
+                                    variant="contained"
+                                    color={buttonColor}
+                                    loadingPosition="start"
+                                    loading={saving}
+                                    startIcon={<SaveIcon />}
+                                    disabled={isDisabled}
+                                    onClick={handleSave}
+                                >
+                                    {saving
+                                        ? "Guardando..."
+                                        : costId
+                                            ? dirty
+                                                ? "Actualizar cambios"
+                                                : "Actualizar"
+                                            : dirty
+                                                ? "Crear"
+                                                : "Crear"}
+                                </Button>
+                            )}
                         </Box>
 
                         <Box
