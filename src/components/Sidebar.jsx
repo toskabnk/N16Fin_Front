@@ -114,6 +114,7 @@ function SidebarComponent({ openSidebar, setOpenSidebar }) {
           {role ? (
             <Menu>
               <CustomMenuItem active={location.pathname === '/dashboard'} component={<Link to="/dashboard" />} icon={<HomeIcon />}> Dashboard</CustomMenuItem>
+              {/* <CustomMenuItem active={location.pathname === '/operation-costs'} component={<Link to="/operation-costs" />} icon={<HomeIcon />}> WIP </CustomMenuItem> */}
               <SubMenu label="Obj&Res" icon={<InsertDriveFileIcon />}>
                 <CustomMenuItem active={location.pathname === '/objectives'} component={<Link to="/objectives" />} icon={<DescriptionIcon/>}> Objetivos y Resultados </CustomMenuItem>
               </SubMenu>

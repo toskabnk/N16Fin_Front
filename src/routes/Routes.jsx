@@ -21,6 +21,7 @@ import Costs from '../pages/Costs/Costs.jsx';
 import Concepts from '../pages/Concepts/Concepts.jsx';
 import ConceptForm from '../pages/Concepts/ConceptForm.jsx';
 import ClientInvoices from '../pages/Invoices/ClientInvoices.jsx';
+import OperationCosts from '../pages/OperationCosts/OperationCosts.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -54,6 +55,7 @@ const Routes = () => {
                         <Route path="/" element={<Home/>} />
                         <Route path="/profile" element={<Profile/>} />
                         <Route path="/costs" element={<Costs/>} />
+                        <Route path="/operation-costs" element={<OperationCosts/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>
