@@ -135,6 +135,10 @@ function ObjectivesAndResults() {
     }, [rows]);
     //#endregion
 
+    useEffect(() => {
+        console.log("Not Found:", notFound);
+    }, [notFound]);
+
     const getObjectivesAndResults = async () => {
         try {
             setLoading(true);
@@ -449,7 +453,7 @@ function ObjectivesAndResults() {
                                     startIcon={<SaveIcon/>} 
                                     disabled={!enableSave} 
                                     onClick={handleSave}>
-                                        {savingModifications ? "Guardando..." : "Guardar"}
+                                        {savingModifications ? "Guardando..." : notFound ? "Crear" : "Modificar"}
                                 </Button>
                             </Box>
                             <Stack 
@@ -538,6 +542,9 @@ function ObjectivesAndResults() {
                                     type="number"
                                     sx={{ width: 300}}
                                     onChange={(event) => {
+                                        if (event.target.value !== projectedGrowth) {
+                                            setEnableSave(true);
+                                        }
                                         setProjectedGrowth(event.target.value);
                                         setRows((prevRows) =>
                                             prevRows.map((row) => ({
