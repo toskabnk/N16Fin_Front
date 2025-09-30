@@ -54,7 +54,7 @@ function Home() {
             <Box sx={{flexGrow: 1}}>
                 <Grid container spacing={2}>
                     <Grid size={{ xs: 12, sm: 6 }}>
-                        <KpiComponent display="Total del mes" data={total} loading={loadingTotal} unit='€'/>
+                        <KpiComponent display="Total del mes" data={Math.round(total)} loading={loadingTotal} unit='€'/>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <KpiComponent display="Facturas por añadir" data={numFacturas} loading={loadingNumFacturas} />
