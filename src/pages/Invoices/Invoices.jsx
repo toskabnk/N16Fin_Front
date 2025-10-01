@@ -32,7 +32,7 @@ function Invoices() {
     const columns = useMemo(() =>[
         { field: 'odoo_invoice_id', headerName: 'ID', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'reference', headerName: 'Referencia', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'month', headerName: 'Mes', type:'singleSelect', flex: 1, editable: true, resizable: true, overflow: 'hidden',
+        { field: 'month', headerName: 'Mes imputación', type:'singleSelect', flex: 1, editable: true, resizable: true, overflow: 'hidden',
             valueOptions: months,
             valueGetter: (params) => {
                 return parseInt(params, 10)

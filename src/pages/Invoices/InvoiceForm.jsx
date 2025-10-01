@@ -286,12 +286,12 @@ function InvoiceForm() {
                             fullWidth
                             error={formik.touched.month && Boolean(formik.errors.month)}
                             margin="normal">
-                            <InputLabel id="demo-simple-select-helper-label">Mes*</InputLabel>
+                            <InputLabel id="demo-simple-select-helper-label">Mes imputación*</InputLabel>
                             <Select
                                 labelId="demo-simple-select-helper-label"
                                 id="month"
                                 name="month"
-                                label="Mes*"
+                                label="Mes imputación*"
                                 value={formik.values.month}
                                 onChange={(event) => {
                                     if(event.target.value){
