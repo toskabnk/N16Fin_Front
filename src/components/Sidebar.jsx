@@ -134,6 +134,7 @@ function SidebarComponent({ openSidebar, setOpenSidebar }) {
                 <CustomMenuItem active={location.pathname === '/centers'} component={<Link to="/centers" />} icon={<DescriptionIcon/>}> Centros </CustomMenuItem>
                 <CustomMenuItem active={location.pathname === '/business-lines'} component={<Link to="/business-lines" />} icon={<DescriptionIcon/>}> Líneas Negocio </CustomMenuItem>
                 <CustomMenuItem active={location.pathname === '/concepts'} component={<Link to="/concepts" />} icon={<DescriptionIcon/>}> Conceptos </CustomMenuItem>
+                <CustomMenuItem active={location.pathname === '/odoo-companies'} component={<Link to="/odoo-companies" />} icon={<DescriptionIcon/>}> Compañías Odoo </CustomMenuItem>
               </SubMenu>
             </Menu>
           ) : null}

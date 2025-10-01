@@ -22,6 +22,8 @@ import Concepts from '../pages/Concepts/Concepts.jsx';
 import ConceptForm from '../pages/Concepts/ConceptForm.jsx';
 import ClientInvoices from '../pages/Invoices/ClientInvoices.jsx';
 import OperationCosts from '../pages/OperationCosts/OperationCosts.jsx';
+import OdooCompanies from '../pages/OdooCompanies/OdooCompanies.jsx';
+import OdooCompaniesForm from '../pages/OdooCompanies/OdooCompaniesForm.jsx';
 
 /**
  * Rutas de la aplicacion
@@ -56,6 +58,8 @@ const Routes = () => {
                         <Route path="/profile" element={<Profile/>} />
                         <Route path="/costs" element={<Costs/>} />
                         <Route path="/operation-costs" element={<OperationCosts/>} />
+                        <Route path="/odoo-companies" element={<OdooCompanies/>} />
+                        <Route path="/odoo-companies/:id" element={<OdooCompaniesForm/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Route>
             </ReactRoutes>
