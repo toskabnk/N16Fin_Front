@@ -11,11 +11,16 @@ import Swal from "sweetalert2";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useCenters } from "../../hooks/useCenters";
 import { useSuppliers } from "../../hooks/useSupliers";
+import OdooCompaniesFilter from "../../components/FilterComponents/OdooCompaniesFilter";
+import { useOdooCompanies } from "../../hooks/useOdooCompanies";
+import { Chip } from "@mui/material";
 
 function Suppliers() {
     //Hooks
     const { centers } = useCenters();
-    const { suppliers, loadingSuppliers } = useSuppliers();
+    const { suppliers, loadingSuppliers,setLoadingSuppliers, getSuppliers } = useSuppliers(false);
+    const { odooCompanies, loadingOdooCompanies } = useOdooCompanies();
+    const [selectedCompany, setSelectedCompany] = useState('');
     const navigate = useNavigate();
     //API ref
     const apiRef = useGridApiRef();
@@ -36,7 +41,14 @@ function Suppliers() {
                     })
                     .join(', ');
                 },
-         },
+        },
+        { field: 'new', headerName: 'Nuevo', flex: 1, renderCell: (params) => {
+            return params.row.new ? (
+                <Chip label="Nuevo" color="success" size="small" />
+            ) : (
+                <></>
+            );
+        }},
         { field: 'actions', headerName: 'Acciones', type: 'actions', flex: 1, resizable: true, overflow: 'hidden',
             getActions: (params) => [
                     <GridActionsCellItem
@@ -57,6 +69,14 @@ function Suppliers() {
             ],
         },
     ], [centers]);
+
+    useEffect(() => {
+        console.log("Selected company changed:", selectedCompany);
+        if(selectedCompany) {
+            setLoadingSuppliers(true);
+            getSuppliers(selectedCompany);
+        }
+    }, [selectedCompany]);
 
     const updateInvoices = React.useCallback(
         (id) => async () => {
@@ -121,6 +141,8 @@ function Suppliers() {
     url="/suppliers"
     buttonName="Nuevo Proveedor"
     loading={loadingSuppliers}
+    filterComponent={<OdooCompaniesFilter selectedCompany={selectedCompany} setSelectedCompany={setSelectedCompany} companies={odooCompanies} />}
+
     noClick={true}
 
 />

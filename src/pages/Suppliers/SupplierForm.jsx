@@ -56,13 +56,14 @@ function SupplierForm(){
     const formik = useFormik({
         initialValues: {
             name: '',
-            type: '',
+            type: null,
             centers: [],
             only_add_vat: false,
+            new: false,
         },
         validationSchema: Yup.object({
             name: Yup.string().required('El nombre es obligatorio'),
-            type: Yup.string().required('El tipo es obligatorio'),
+            type: Yup.string().nullable(),
         }),
         onSubmit: async (values) => {
             setLoading(true);
@@ -103,6 +104,7 @@ function SupplierForm(){
                 concept: location.state.objectID.concept || '',
                 business_line_id: location.state.objectID.business_line?.id,
                 only_add_vat: location.state.objectID.only_add_vat || false,
+                new: location.state.objectID.new || false,
             });
             if(location.state.objectID.business_line) {
                 setSelectedBusinessLine(location.state.objectID.business_line);
@@ -192,9 +194,8 @@ function SupplierForm(){
                         <FormikTextField
                             id="type"
                             type="text"
-                            label="Tipo"
+                            label="Categoria"
                             formik={formik}
-                            required={true}
                             fullWidth={true}/>
                         <Grid
                             container
@@ -255,6 +256,21 @@ function SupplierForm(){
                             sx={{ mt: 1 }} 
                         />
                         
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                    <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    id="new"
+                                    name="new"
+                                    checked={formik.values.new}
+                                    onChange={formik.handleChange}
+                                />
+                            }
+                            label="Proveedor Nuevo"
+                        />
                     </Paper>
                 </Grid>
         </FormGrid>

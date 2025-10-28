@@ -12,11 +12,15 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useCenters } from "../../hooks/useCenters";
+import { useOdooCompanies } from "../../hooks/useOdooCompanies";
+import OdooCompaniesFilter from "../../components/FilterComponents/OdooCompaniesFilter";
+import { Chip } from "@mui/material";
 
 function Invoices() {
     //Hooks
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
     const { centers } = useCenters();
+    const { odooCompanies } = useOdooCompanies();
     const navigate = useNavigate();
     //Token
     const token = useSelector((state) => state.user.token);
@@ -26,13 +30,14 @@ function Invoices() {
     const [supplierID, setSupplierID] = useState(null);
     const [filter, setFilter] = useState(null);
     const [filterModel, setFilterModel] = useState({ items: [] });
+    const [selectedCompany, setSelectedCompany] = useState('');
     //Row data for the table
     const [rows, setRows] = useState([]);
     //Columns for the table
     const columns = useMemo(() =>[
         { field: 'odoo_invoice_id', headerName: 'ID', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
         { field: 'reference', headerName: 'Referencia', type:'string', flex: 1, resizable: true, overflow: 'hidden' },
-        { field: 'month', headerName: 'Mes', type:'singleSelect', flex: 1, editable: true, resizable: true, overflow: 'hidden',
+        { field: 'month', headerName: 'Mes imputación', type:'singleSelect', flex: 1, editable: true, resizable: true, overflow: 'hidden',
             valueOptions: months,
             valueGetter: (params) => {
                 return parseInt(params, 10)
@@ -79,6 +84,13 @@ function Invoices() {
                 },
         },
         { field: 'supplier_id', headerName: 'ID Proveedor', flex: 1, resizable: true, overflow: 'hidden', hide: true,},
+        { field: 'new', headerName: 'Nuevo', flex: 1, renderCell: (params) => {
+            return params.row.new ? (
+                <Chip label="Nuevo" color="success" size="small" />
+            ) : (
+                <></>
+            );
+        }},
         { field: 'actions', headerName: 'Acciones', type: 'actions', flex: 1, resizable: true, overflow: 'hidden',
             getActions: (params) => [
                     <GridActionsCellItem
@@ -101,16 +113,18 @@ function Invoices() {
         },
     ], [centers]);
     //Loading state
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     //API ref
     const apiRef = useGridApiRef();
 
     //Al cargar la pagina carga las companias
     useEffect(() => {
-        if(token){
+        console.log("Selected company changed:", selectedCompany);
+        if(selectedCompany) {
+            setLoading(true);
             getInvoices();
         }
-    }, [token]);
+    }, [selectedCompany]);
 
     useEffect(() => {
         let supplierID = searchParams.get('supplierID')
@@ -131,7 +145,10 @@ function Invoices() {
     //Obtiene las facturas de la BD
     const getInvoices = async () => {
         try {
-            const response = await InvoiceService.getAll(token);
+            const response = await InvoiceService.getAll(token, {
+                type: 'out',
+                company_id: selectedCompany,
+            });
 
             setRows(response.data);
             setLoading(false);
@@ -266,6 +283,7 @@ function Invoices() {
         filter={true}
         filterModel={filterModel}
         setFilterModel={setFilterModel}
+        filterComponent={<OdooCompaniesFilter selectedCompany={selectedCompany} setSelectedCompany={setSelectedCompany} companies={odooCompanies} />}
         initialState={{
             columns: {
                 columnVisibilityModel: {

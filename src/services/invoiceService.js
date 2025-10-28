@@ -73,6 +73,16 @@ class InvoiceService extends AbstractApiService {
     getInvoicesToAdd(access_token, body) {
         return n16FinApi.get(`${this.getUrl()}/getNumberToAdd`, {params: body, bearerToken: access_token});
     }
+
+    getOperationCosts(access_token, body) {
+        try {
+            const response = n16FinApi.get(`${this.getUrl()}/getOperationCosts`, {params: body, bearerToken: access_token });
+            return response.data;
+        } catch (error) {
+            console.error("Error during getOperationCosts:", error);
+            throw error;
+        }
+    }
 }
 
 export default new InvoiceService();

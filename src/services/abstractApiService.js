@@ -12,9 +12,9 @@ class AbstractApiService {
       throw new Error("Method 'getUrl()' must be implemented.");
     }
   
-    async getAll(access_token) {
+    async getAll(access_token, params = {}) {
       try {
-        const response = await n16FinApi.get(this.getUrl(), { bearerToken: access_token });
+        const response = await n16FinApi.get(this.getUrl(), { bearerToken: access_token, params });
         return response.data;
       } catch (error) {
         console.error("Error during getAll:", error);
