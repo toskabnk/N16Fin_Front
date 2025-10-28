@@ -8,7 +8,7 @@ import FormGrid from "../../components/FormGrid";
 import { Grid } from "@mui/system";
 import Autocomplete from "../../components/Forms/Autocomplete";
 import FormikTextField from "../../components/FormikTextField";
-import { FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
+import { Checkbox, FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Paper, Radio, RadioGroup, Select, Skeleton, Typography } from "@mui/material";
 import FormLabel from '@mui/material/FormLabel';
 import TransferList from "../../components/TransferListComponent";
 import InvoiceService from "../../services/invoiceService";
@@ -28,7 +28,7 @@ function InvoiceForm() {
     const { businessLines, loadingBusinessLines } = useBusinessLines();
     const { concepts, loadingConcepts } = useConcepts();
     const { shareTypes, loadingShareTypes } = useShareTypes();
-    const { suppliers, loadingSuppliers } = useSuppliers();
+    const { suppliers, loadingSuppliers, getSuppliers } = useSuppliers(false);
     const location = useLocation();
     const navigate = useNavigate();
     const { errorSnackbar, successSnackbar } = useSnackbarContext();
@@ -97,6 +97,7 @@ function InvoiceForm() {
             share_type_id: null,
             type: "in",
             concept: "",
+            new: false,
         },
         validationSchema: Yup.object({
             reference: Yup.string().required("Campo requerido"),
@@ -108,6 +109,7 @@ function InvoiceForm() {
             share_type_id: Yup.string().required("Campo requerido"),
             type: Yup.string().oneOf(["in", "out"], "Tipo de factura inválido").required("Campo requerido"),
             concept: Yup.string().required("Campo requerido"),
+            new: Yup.boolean(),
         }),
         onSubmit: async (values) => {
             setLoading(true);
@@ -151,7 +153,8 @@ function InvoiceForm() {
         if (id && location.state?.objectID) {
             setIsEdit(true);
             console.log(location.state.objectID);
-            const { reference, month, invoice_date, amount_total, type, supplier, manual, centers, business_line, share_type, concept} = location.state.objectID;
+            const { reference, month, invoice_date, amount_total, type, supplier, manual, centers, business_line, share_type, concept, company_id} = location.state.objectID;
+            getSuppliers(company_id);
             formik.setValues({
                 reference: reference,
                 amount_total: amount_total,
@@ -160,6 +163,7 @@ function InvoiceForm() {
                 business_line_id: business_line?.id,
                 type: type || "in",
                 concept: concept || '',
+                new: location.state.objectID.new || false,
             });
             if(supplier) {
                 setSelectedSupplier(supplier);
@@ -361,8 +365,8 @@ function InvoiceForm() {
                                 value={formik.values.type}
                                 onChange={formik.handleChange}
                             >
-                                <FormControlLabel value="in" control={<Radio />} label="In" />
-                                <FormControlLabel value="out" control={<Radio />} label="Out" />
+                                <FormControlLabel value="in" control={<Radio />} label="Proveedor" />
+                                <FormControlLabel value="out" control={<Radio />} label="Cliente" />
                             </RadioGroup>
                         </FormControl>
                         <Grid
@@ -409,6 +413,21 @@ function InvoiceForm() {
                             options={concepts}
                             label="Concepto*"
                             formik={formik}
+                        />
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 6 }}>
+                    <Paper sx={{ padding: 2, marginTop: 2 }} elevation={3}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    id="new"
+                                    name="new"
+                                    checked={formik.values.new}
+                                    onChange={formik.handleChange}
+                                />
+                            }
+                            label="Factura nueva"
                         />
                     </Paper>
                 </Grid>

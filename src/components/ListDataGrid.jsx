@@ -91,6 +91,7 @@ const ListDataGrid = ({ rows, columns, name, subname = null, url, buttonName, lo
                     gap={4}
                     px={2}
                     key={index}
+                    width={"300px"}
                   >
                     {filterComponentT}
                   </Box>
