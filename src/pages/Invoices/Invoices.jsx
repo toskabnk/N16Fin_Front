@@ -146,7 +146,7 @@ function Invoices() {
     const getInvoices = async () => {
         try {
             const response = await InvoiceService.getAll(token, {
-                type: 'out',
+                type: 'in',
                 company_id: selectedCompany,
             });
 
